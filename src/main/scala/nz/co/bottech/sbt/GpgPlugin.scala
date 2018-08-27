@@ -1,27 +1,15 @@
 package nz.co.bottech.sbt
 
-import sbt._
-import sbt.Keys._
-import sbt.plugins.JvmPlugin
+import nz.co.bottech.sbt.GpgSettings._
+import sbt.{Def, _}
 
 object GpgPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
-  override def requires = JvmPlugin
 
-  object autoImport {
-    val exampleSetting = settingKey[String]("A setting that is automatically imported to the build")
-    val exampleTask = taskKey[String]("A task that is automatically imported to the build")
-  }
+  override def requires = Plugins.empty
 
-  import autoImport._
+  object autoImport extends GpgKeys
 
-  override lazy val projectSettings = Seq(
-    exampleSetting := "just an example",
-    exampleTask := "computed from example setting: " + exampleSetting.value
-  )
-
-  override lazy val buildSettings = Seq()
-
-  override lazy val globalSettings = Seq()
+  override lazy val projectSettings: Seq[Def.Setting[_]] = rawSettings
 }
