@@ -8,12 +8,12 @@ object GpgCommands {
 
   final val FullGenerateKeyCommand = "--full-generate-key"
 
-  def commonArguments(homeDirectory: File, statusFileDesciptor: Int): Seq[GpgArgument] = {
+  def commonArguments(homeDirectory: File, statusFileDescriptor: Int): Seq[GpgArgument] = {
     Seq(
       GpgOption.homeDir(homeDirectory),
       GpgFlag.batch,
       GpgFlag.withColon,
-      GpgOption.statusFD(statusFileDesciptor)
+      GpgOption.statusFD(statusFileDescriptor)
     )
   }
 
