@@ -1,7 +1,7 @@
-package nz.co.bottech.sbt
+package nz.co.bottech.sbt.gpg
 
-import nz.co.bottech.sbt.GpgKeys._
-import nz.co.bottech.sbt.GpgTasks._
+import nz.co.bottech.sbt.gpg.GpgKeys._
+import nz.co.bottech.sbt.gpg.GpgTasks._
 import sbt._
 import sbt.Keys._
 
@@ -17,9 +17,14 @@ object GpgSettings {
   )
 
   def gpgArgumentsSetting = Def.setting {
-    GpgCommands.commonArguments(
-      gpgHomeDir.value,
-      gpgStatusFileDescriptor.value
-    )
+    gpgVersion.value match {
+      case GpgVersion2Dot0 => ???
+      case GpgVersion2Dot1 => ???
+      case GpgVersion2Dot2 =>
+        v2_2.GpgCommands.commonArguments(
+          gpgHomeDir.value,
+          gpgStatusFileDescriptor.value
+        )
+    }
   }
 }

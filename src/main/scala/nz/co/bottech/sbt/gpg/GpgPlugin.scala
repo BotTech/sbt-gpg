@@ -1,6 +1,6 @@
-package nz.co.bottech.sbt
+package nz.co.bottech.sbt.gpg
 
-import nz.co.bottech.sbt.GpgSettings._
+import nz.co.bottech.sbt.gpg.GpgSettings._
 import sbt.{Def, _}
 
 object GpgPlugin extends AutoPlugin {

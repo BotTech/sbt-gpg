@@ -1,4 +1,4 @@
-package nz.co.bottech.sbt
+package nz.co.bottech.sbt.gpg
 
 import java.io.File
 

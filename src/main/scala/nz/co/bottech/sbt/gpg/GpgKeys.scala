@@ -1,4 +1,4 @@
-package nz.co.bottech.sbt
+package nz.co.bottech.sbt.gpg
 
 import sbt._
 
@@ -10,6 +10,7 @@ trait GpgKeys {
   val gpgHomeDir = settingKey[File]("The gpg home directory.")
   val gpgAdditionalOptions = settingKey[Seq[String]]("Additional options to pass to gpg.")
   val gpgStatusFileDescriptor = settingKey[Int]("The file descriptor for writing status messages.")
+  val gpgVersion = settingKey[GpgVersion]("The version of GnuPGP.")
 }
 
 object GpgKeys extends GpgKeys
