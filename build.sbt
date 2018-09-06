@@ -12,7 +12,8 @@ sbtPlugin := true
 libraryDependencies += "com.lihaoyi" %% "utest" % "0.6.4" % Test
 testFrameworks += new TestFramework("utest.runner.Framework")
 
-enablePlugins(ScriptedPlugin)
+enablePlugins(ScriptedGpgDockerPlugin)
+
 scriptedLaunchOpts ++= Seq(
   "-Xmx1024M",
   "-Dplugin.version=" + version.value

@@ -8,23 +8,13 @@ import sbt.Keys._
 object GpgSettings {
 
   val rawSettings = Seq(
-    gpgArguments := gpgArgumentsSetting.value,
-    gpgCommand := "gpg",
+    gpgAdditionalOptions := Seq.empty,
+    gpgArguments := gpgArgumentsTask.value,
+    gpgCommand := gpgCommandAndVersion.value._1,
+    gpgCommandAndVersion := gpgCommandAndVersionTask.value,
     gpgGenerateKey := generateKeyTask.value,
     gpgHomeDir := target.value / ".gnupg",
-    gpgAdditionalOptions := Seq.empty,
-    gpgStatusFileDescriptor := 1
+    gpgStatusFileDescriptor := 1,
+    gpgVersion := gpgCommandAndVersion.value._2
   )
-
-  def gpgArgumentsSetting = Def.setting {
-    gpgVersion.value match {
-      case GpgVersion2Dot0 => ???
-      case GpgVersion2Dot1 => ???
-      case GpgVersion2Dot2 =>
-        v2_2.GpgCommands.commonArguments(
-          gpgHomeDir.value,
-          gpgStatusFileDescriptor.value
-        )
-    }
-  }
 }
