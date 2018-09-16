@@ -10,20 +10,14 @@ addons:
     packages:
     - oracle-java8-installer
 
-env:
-  global:
-  # PGP Passphrase
-  #- secure: "ENCRYPTED_PGP_PASSPHRASE"
-  # Bintray Username and API Key
-  #- BINTRAY_USER=YOUR_BINTRAY_USER
-  #- secure: "ENCRYPTED_BINTRAY_API_KEY"
-  # GitHub Token
-  #- secure: "ENCRYPTED_GITHUB_TOKEN"
-
-script: sbt scripted
-
-before_deploy:
-#- openssl aes-256-cbc -K $encrypted_4a09436dfeda_key -iv $encrypted_4a09436dfeda_iv -in travis/secring.asc.enc -out travis/secring.asc -d
+jobs:
+  include:
+    - stage: test
+      script: sbt V2_0/scripted
+    - stage: test
+      script: sbt V2_1/scripted
+    - stage: test
+      script: sbt V2_2/scripted
 
 deploy:
   provider: script
