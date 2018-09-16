@@ -6,6 +6,11 @@ import sbt.Keys._
 
 object GpgTasks {
 
+  // Max socket length is usually 108 bytes.
+  // -1 for the null character.
+  // -12 for the /S.gpg-agent suffix.
+  final val MaxHomeDirLength = 108 - 1 - 12
+
   def gpgCommandAndVersionTask: Def.Initialize[Task[(String, GpgVersion)]] = Def.task {
     val log = state.value.log
     val commandAndVersion = for {
@@ -28,25 +33,62 @@ object GpgTasks {
   }
 
   def gpgArgumentsTask = Def.task {
+    val log = state.value.log
     val commands = GpgVersion.commands(gpgVersion.value)
-    commands.commonArguments(
-      gpgHomeDir.value,
-      gpgStatusFileDescriptor.value
+    val dir = gpgHomeDir.value
+    if (dir.getPath.length() > MaxHomeDirLength) {
+      log.warn(s"Home directory $dir is over the maximum length of $MaxHomeDirLength.")
+      log.warn("gpg-agent may fail to start.")
+    }
+    val debug = logLevel.?.value.contains(Level.Debug)
+    commands.commonArguments(dir, gpgStatusFileDescriptor.value, debug)
+  }
+
+  private def gpgName = Def.task {
+    val name = GpgName(
+      real = gpgNameReal.value,
+      email = gpgNameEmail.value
     )
+    require(name.real.trim.nonEmpty, "gpgNameReal must not be empty.")
+    require(name.email.trim.nonEmpty, "gpgNameEmail must not be empty.")
+    name
+  }
+
+  def gpgParametersFileTask = Def.task {
+    val log = state.value.log
+    val parameters = GpgParameters(
+      key = GpgKeyParameters(
+        length = gpgKeyLength.value,
+        typ = gpgKeyType.value,
+        usage = gpgKeyUsage.value
+      ),
+      subkey = GpgKeyParameters(
+        length = gpgSubkeyLength.value,
+        typ = gpgSubkeyType.value,
+        usage = gpgSubkeyUsage.value
+      ),
+      expire = gpgExpireDate.value,
+      name = gpgName.value,
+      passphrase = gpgPassphrase.value
+    )
+    require(parameters.passphrase.trim.nonEmpty, "gpgPassphrase must not be empty.")
+    val file = gpgHomeDir.value / "parameters"
+    file.deleteOnExit()
+    GpgParameterFile.create(parameters, file, log)
   }
 
   def generateKeyTask: Def.Initialize[Task[Unit]] = {
-    runCommandTask(gpgGenerateKey, GpgVersion.commands(_).generateKey)
+    runCommandTask(GpgVersion.commands(_).generateKey)
   }
 
-  def runCommandTask[A](commandKey: TaskKey[A],
-                        command: GpgVersion => (String, Seq[String], Logger) => A): Def.Initialize[Task[Unit]] = Def.task {
+  def runCommandTask[A](command: GpgVersion => (String, Seq[String], Seq[String], Logger) => A): Def.Initialize[Task[Unit]] = Def.task {
     val log = state.value.log
-    val gpg = (gpgCommand in commandKey).value
-    val version = (gpgVersion in commandKey).value
-    val args = (gpgArguments in commandKey).value
-    val additionalOptions = (gpgAdditionalOptions in commandKey).value
-    val options = args.flatMap(_.toOptions) ++ additionalOptions
-    command(version)(gpg, options, log)
+    val gpg = gpgCommand.value
+    val version = gpgVersion.value
+    val args = gpgArguments.value
+    val additionalOptions = gpgAdditionalOptions.value
+    val parameters = gpgParameters.value
+    val options = args.flatMap(_.prepare()) ++ additionalOptions
+    command(version)(gpg, options, parameters, log)
   }
 }

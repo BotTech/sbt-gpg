@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# The GnuPG home directory cannot be a shared volume or gpg-agent will fail to start
+# since the socket name will be too long.
+
+set -e
+
+# Make any directories in case they are missing.
+mkdir -p /root/target/.gnupg
+mkdir -p /tmp/.gnupg
+
+# Copy the files to a temporary home directory.
+cp -R /root/target/.gnupg /tmp/
+
+# Execute the command
+$@
+
+# Cleanup any remaining sockets.
+gpgconf --kill gpg-agent
+rm -f /tmp/.gnupg/S.gpg-agent*
+
+# Copy the files back to the target directory.
+cp -R /tmp/.gnupg /root/target/

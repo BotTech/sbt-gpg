@@ -6,6 +6,6 @@ scalaVersion := "2.12.6"
 
 TaskKey[Unit]("check") := {
   val log = state.value.log
-  log.info("checking detected gpg version")
+  log.info("running gpgVersion task")
   require(gpgVersion.value === GpgVersion2Dot0)
 }

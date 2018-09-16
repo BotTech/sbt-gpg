@@ -36,9 +36,10 @@ object ScriptedGpgDockerPlugin extends AutoPlugin {
   private def versionSpecificSettings(settings: GpgVersionSettings) = {
     import settings.{gpgCommand, gpgPackage, gpgPropName, imageTag}
     Seq(
-      docker / dockerfile := gpgDockerfile(imageTag, gpgPackage),
+      docker / dockerfile := gpgDockerfileSetting(imageTag, gpgPackage).value,
       docker / imageNames := dockerImageConfigNamesTask(imageTag).value,
       scripted := scriptedConfigTask.evaluated,
+      scriptedBufferLog := false,
       scriptedDependencies := {
         scriptedDependencies.value
         docker.value
@@ -50,11 +51,18 @@ object ScriptedGpgDockerPlugin extends AutoPlugin {
     )
   }
 
-  private def gpgDockerfile(ubuntuTag: String, gpgPackage: String) = {
+  private def gpgDockerfileSetting(ubuntuTag: String, gpgPackage: String) = Def.setting {
     Dockerfile.empty
       .from(s"ubuntu:$ubuntuTag")
       .run("apt-get", "update")
       .run("apt-get", "install", "-y", gpgPackage)
+      .add(proxyScript.value, "/usr/local/bin/proxy")
+      .run("chmod", "+x", "/usr/local/bin/proxy")
+  }
+
+  private def proxyScript = Def.setting {
+    val conf = configuration.value.name
+    sourceDirectory.value / "sbt-resources" / conf / "proxy"
   }
 
   private def dockerImageConfigNamesTask(ubuntuTag: String) = Def.task {
@@ -77,7 +85,8 @@ object ScriptedGpgDockerPlugin extends AutoPlugin {
     val organisation = Some(organization.value)
     val name = Keys.normalizedName.value
     val imageName = ImageName(namespace = organisation, repository = name)
-    val commandProp = s"""-D$gpgPropName=docker run --rm $imageName:$imageTag $gpgCommand"""
+    val commandProp =
+      s"""-D$gpgPropName=docker run --rm --mount type=bind,source=$$(pwd),target=/root $imageName:$imageTag proxy $gpgCommand"""
     val hiddenProps = hideOtherCommandProps(gpgPropName)
     commandProp +: hiddenProps
   }

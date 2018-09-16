@@ -1,22 +1,52 @@
 package nz.co.bottech.sbt.gpg
 
+import java.io.File
+import java.nio.file.Files
+
 sealed trait GpgArgument {
 
-  def toOptions: Seq[String]
+  def prepare(): Seq[String]
 }
 
 final case class GpgFlag(flag: String) extends GpgArgument {
 
-  override def toOptions: Seq[String] = Seq(flag)
+  override def prepare(): Seq[String] = Seq(flag)
 }
 
 object GpgFlag {
 
   val batch = GpgFlag("--batch")
   val withColon = GpgFlag("--with-colons")
+  val noPermissionWarning = GpgFlag("--no-permission-warning")
+  val verbose = GpgFlag("--verbose")
 }
 
-final case class GpgOptionValue(option: String, value: String) extends GpgArgument {
+final case class GpgOption(option: String, value: () => String) extends GpgArgument {
 
-  override def toOptions: Seq[String] = Seq(option, value)
+  override def prepare(): Seq[String] = Seq(option, value())
+}
+
+object GpgOption {
+
+  val homeDir = DirectoryOption("--homedir", create = true)
+  val statusFD = ToStringOption("--status-fd")
+}
+
+final case class DirectoryOption(option: String, create: Boolean) extends (File => GpgOption) {
+
+  override def apply(directory: File): GpgOption = {
+    GpgOption(option, prepare(directory))
+  }
+
+  private def prepare(directory: File): () => String = () => {
+    if (create) {
+      val _ = Files.createDirectories(directory.toPath).toString
+    }
+    directory.toString
+  }
+}
+
+final case class ToStringOption(option: String) extends (Any => GpgOption) {
+
+  override def apply(value: Any): GpgOption = GpgOption(option, () => value.toString)
 }
