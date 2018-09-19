@@ -1,5 +1,6 @@
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport._
+import sbt.internal.util.complete.{ Parser, DefaultParsers }
 import sbt.{Def, _}
 import sbtdocker.DockerKeys._
 import sbtdocker.immutable.Dockerfile
@@ -29,16 +30,16 @@ object ScriptedGpgDockerPlugin extends AutoPlugin {
     inConfig(conf) {
       DockerSettings.baseDockerSettings ++
         ScriptedSettings.rawSettings ++
-        versionSpecificSettings(settings)
+        versionSpecificSettings(conf, settings)
     }
   }
 
-  private def versionSpecificSettings(settings: GpgVersionSettings) = {
+  private def versionSpecificSettings(conf: Configuration, settings: GpgVersionSettings) = {
     import settings.{gpgCommand, gpgPackage, gpgPropName, imageTag}
     Seq(
       docker / dockerfile := gpgDockerfileSetting(imageTag, gpgPackage).value,
       docker / imageNames := dockerImageConfigNamesTask(imageTag).value,
-      scripted := scriptedConfigTask.evaluated,
+      scripted := scriptedConfigTask(conf.name).evaluated,
       scriptedBufferLog := false,
       scriptedDependencies := {
         scriptedDependencies.value
@@ -76,9 +77,14 @@ object ScriptedGpgDockerPlugin extends AutoPlugin {
     }
   }
 
-  private def scriptedConfigTask = Def.inputTaskDyn[Unit] {
-    val conf = configuration.value.name
-    ScriptedSettings.scriptedTask.toTask(s" $conf/*")
+  private def scriptedConfigTask(conf: String) = {
+    def scriptedParser(scriptedBase: File) = {
+      import DefaultParsers._
+      val baseParser = ScriptedSettings.scriptedParser(scriptedBase)
+      val whitespace = Parser.charClass(c => c.isWhitespace, "whitespace").+.string
+      whitespace ~> Parser(baseParser)(s" $conf/")
+    }
+    ScriptedSettings.scriptedTaskWithParser(scriptedParser)
   }
 
   private def gpgCommandPropSetting(imageTag: String, gpgCommand: String, gpgPropName: String) = Def.setting {
