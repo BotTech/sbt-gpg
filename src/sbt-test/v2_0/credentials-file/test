@@ -1,0 +1,3 @@
+> check
+$ exists target/.gnupg/pubring.gpg
+$ exists target/.gnupg/secring.gpg

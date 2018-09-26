@@ -13,18 +13,18 @@ final case class GpgParameters(key: GpgKeyParameters,
                                subkey: GpgKeyParameters,
                                expire: String,
                                name: GpgName,
-                               passphrase: String)
+                               passphrase: Option[String])
 
 object GpgParameterFile {
 
   def create(parameters: GpgParameters, file: File, log: Logger): File = {
-    import parameters._
+    import parameters.{expire, key, name, passphrase, subkey}
     val lines = {
       keyLines(key, "Key") ++:
         keyLines(subkey, "Subkey") ++:
         s"Expire-Date: $expire" +:
-        nameLines(name) :+
-        s"Passphrase: $passphrase"
+        nameLines(name) ++:
+        passphrase.map(p => s"Passphrase: $p").toSeq
     }
     sbt.IO.writeLines(file, lines, StandardCharsets.UTF_8, append = false)
     log.debug(s"Parameters file written to $file.")

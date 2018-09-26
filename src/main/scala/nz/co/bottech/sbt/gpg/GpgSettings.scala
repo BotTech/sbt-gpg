@@ -20,8 +20,8 @@ object GpgSettings {
     gpgNameReal := "",
     gpgNameEmail := "",
     gpgParametersFile := gpgParametersFileTask.value,
-    // TODO: Make this more secure.
-    gpgPassphrase := "",
+    gpgPassphrase := None,
+    gpgSelectPassphrase := gpgSelectPassphraseTask.value,
     gpgStatusFileDescriptor := 1,
     gpgSubkeyLength := gpgKeyLength.value,
     gpgSubkeyType := "RSA",

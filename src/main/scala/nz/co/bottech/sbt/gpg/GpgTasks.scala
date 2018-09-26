@@ -44,7 +44,11 @@ object GpgTasks {
     commands.commonArguments(dir, gpgStatusFileDescriptor.value, debug)
   }
 
-  private def gpgName = Def.task {
+  def gpgSelectPassphraseTask = Def.task {
+    gpgPassphrase.value orElse Credentials.forHost(credentials.value, "gpg").map(_.passwd)
+  }
+
+  private def gpgNameTask = Def.task {
     val name = GpgName(
       real = gpgNameReal.value,
       email = gpgNameEmail.value
@@ -68,10 +72,9 @@ object GpgTasks {
         usage = gpgSubkeyUsage.value
       ),
       expire = gpgExpireDate.value,
-      name = gpgName.value,
-      passphrase = gpgPassphrase.value
+      name = gpgNameTask.value,
+      passphrase = gpgSelectPassphrase.value
     )
-    require(parameters.passphrase.trim.nonEmpty, "gpgPassphrase must not be empty.")
     val file = gpgHomeDir.value / "parameters"
     file.deleteOnExit()
     GpgParameterFile.create(parameters, file, log)
