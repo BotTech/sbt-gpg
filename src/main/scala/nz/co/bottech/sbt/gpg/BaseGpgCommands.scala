@@ -2,14 +2,14 @@ package nz.co.bottech.sbt.gpg
 
 import java.io.File
 
+import nz.co.bottech.sbt.gpg.BaseGpgCommands._
+import nz.co.bottech.sbt.gpg.GpgErrors.{GpgCannotParseOutput, GpgUnknownVersionException}
 import sbt.util.Logger
 
 import scala.sys.process._
 import scala.util.Try
 
 trait BaseGpgCommands {
-
-  private final val CurrentDirectory = "user.dir"
 
   protected val GpgCommandProperty: String
   protected val GpgCommand: String
@@ -45,10 +45,10 @@ trait BaseGpgCommands {
     }
   }
 
-  def commonArguments(homeDirectory: File, statusFileDescriptor: Int, debug: Boolean): Seq[GpgArgument] = {
+  def commonArguments(homeDirectory: Option[File], statusFileDescriptor: Int, debug: Boolean): Seq[GpgArgument] = {
     Seq(GpgFlag.verbose).filter(_ => debug) ++
+      homeDirectory.map(GpgOption.homeDir) ++
       Seq(
-        GpgOption.homeDir(homeDirectory),
         GpgFlag.batch,
         GpgFlag.withColon,
         GpgOption.statusFD(statusFileDescriptor),
@@ -56,9 +56,21 @@ trait BaseGpgCommands {
       )
   }
 
-  def generateKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+  def generateKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): String = {
     log.info(s"Generating key: $gpg ${options.mkString(" ")} $GenerateKeyCommand ${parameters.mkString(" ")}")
-    execute(gpg, options, GenerateKeyCommand, parameters, log)
+    val lines = execute(gpg, options, GenerateKeyCommand, parameters, log)
+    val keyID = lines.collectFirst {
+      case KeyCreatedPattern(id) => id
+    }
+    log.warn("You should keep your private master key very, very safe.")
+    log.warn("First copy the master key pair to an encrypted external storage device using gpgCopyKey.")
+    log.warn("Then delete the private master key from this device using gpgDeletePrivateKey.")
+    log.warn(
+      "Alternatively you can set gpgHomeDir to the location on the external storage device and then copy the subkey to this device."
+    )
+    keyID.getOrElse {
+      throw GpgCannotParseOutput("Unable to find key Id in the output.")
+    }
   }
 
   def execute(gpg: String, options: Seq[String], command: String, parameters: Seq[String], log: Logger): Seq[String] = {
@@ -71,4 +83,10 @@ trait BaseGpgCommands {
       line
     }.toList
   }
+}
+
+object BaseGpgCommands {
+
+  final val CurrentDirectory = "user.dir"
+  final val KeyCreatedPattern = """\[GNUPG:] KEY_CREATED B (.+)""".r
 }

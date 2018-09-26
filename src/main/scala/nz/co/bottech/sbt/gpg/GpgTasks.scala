@@ -1,15 +1,16 @@
 package nz.co.bottech.sbt.gpg
 
+import nz.co.bottech.sbt.gpg.GpgErrors.GpgUnknownVersionException
 import nz.co.bottech.sbt.gpg.GpgKeys._
-import sbt.{Def, _}
 import sbt.Keys._
+import sbt.{Def, _}
 
 object GpgTasks {
 
-  // Max socket length is usually 108 bytes.
+  // Max socket length is usually 108 bytes on Linux and 104 bytes on macOS.
   // -1 for the null character.
   // -12 for the /S.gpg-agent suffix.
-  final val MaxHomeDirLength = 108 - 1 - 12
+  final val MaxHomeDirLength = 104 - 1 - 12
 
   def gpgCommandAndVersionTask: Def.Initialize[Task[(String, GpgVersion)]] = Def.task {
     val log = state.value.log
@@ -36,8 +37,8 @@ object GpgTasks {
     val log = state.value.log
     val commands = GpgVersion.commands(gpgVersion.value)
     val dir = gpgHomeDir.value
-    if (dir.getPath.length() > MaxHomeDirLength) {
-      log.warn(s"Home directory $dir is over the maximum length of $MaxHomeDirLength.")
+    dir.filter(_.getPath.getBytes.length > MaxHomeDirLength).foreach { d =>
+      log.warn(s"Home directory $d is over the maximum length of $MaxHomeDirLength.")
       log.warn("gpg-agent may fail to start.")
     }
     val debug = logLevel.?.value.contains(Level.Debug)
@@ -75,16 +76,18 @@ object GpgTasks {
       name = gpgNameTask.value,
       passphrase = gpgSelectPassphrase.value
     )
-    val file = gpgHomeDir.value / "parameters"
+    val file = target.value / "gpg" / "parameters"
     file.deleteOnExit()
     GpgParameterFile.create(parameters, file, log)
   }
 
-  def generateKeyTask: Def.Initialize[Task[Unit]] = {
+  def generateKeyTask: Def.Initialize[Task[String]] = {
     runCommandTask(GpgVersion.commands(_).generateKey)
   }
 
-  def runCommandTask[A](command: GpgVersion => (String, Seq[String], Seq[String], Logger) => A): Def.Initialize[Task[Unit]] = Def.task {
+  type Command[A] = (String, Seq[String], Seq[String], Logger) => A
+
+  def runCommandTask[A](command: GpgVersion => Command[A]): Def.Initialize[Task[A]] = Def.task {
     val log = state.value.log
     val gpg = gpgCommand.value
     val version = gpgVersion.value

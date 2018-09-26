@@ -13,7 +13,7 @@ object GpgSettings {
     gpgCommand := gpgCommandAndVersion.value._1,
     gpgCommandAndVersion := gpgCommandAndVersionTask.value,
     gpgExpireDate := "0",
-    gpgHomeDir := target.value / ".gnupg",
+    gpgHomeDir := None,
     gpgKeyLength := 4096,
     gpgKeyType := "RSA",
     gpgKeyUsage := Set(),
