@@ -4,7 +4,7 @@ scalaVersion := "2.12.6"
 
 gpgNameReal := "Jim Bob"
 gpgNameEmail := "jim.bob@example.com"
-gpgPassphrase := "oh no this shouldn't be here"
+gpgPassphrase := Some("oh no this shouldn't be here")
 
 gpgArguments := {
   GpgTasks.gpgArgumentsTask.value.map {
