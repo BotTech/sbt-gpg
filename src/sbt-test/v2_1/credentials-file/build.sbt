@@ -6,15 +6,8 @@ gpgNameReal := "Jim Bob"
 gpgNameEmail := "jim.bob@example.com"
 credentials += Credentials("GnuPG Realm", "gpg", "", "topsecret")
 
-gpgArguments := {
-  GpgTasks.gpgArgumentsTask.value.map {
-    case option@GpgOption(GpgOption.homeDir.option, _) => option.copy(value = () => "/tmp/.gnupg")
-    case option => option
-  }
-}
-
 gpgParametersFile := {
-  file("/") / "tmp" / ".gnupg" / gpgParametersFile.value.getName
+  file("/") / "root" / ".gnupg" / gpgParametersFile.value.getName
 }
 
 TaskKey[Unit]("check") := {

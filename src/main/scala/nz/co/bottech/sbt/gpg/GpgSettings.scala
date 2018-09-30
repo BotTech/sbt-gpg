@@ -2,8 +2,7 @@ package nz.co.bottech.sbt.gpg
 
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import nz.co.bottech.sbt.gpg.GpgTasks._
-import sbt.Keys._
-import sbt.{Def, _}
+import sbt._
 
 object GpgSettings {
 
@@ -14,11 +13,13 @@ object GpgSettings {
     gpgCommandAndVersion := gpgCommandAndVersionTask.value,
     gpgExpireDate := "0",
     gpgHomeDir := None,
+    gpgKeyFingerprint := None,
     gpgKeyLength := 4096,
     gpgKeyType := "RSA",
     gpgKeyUsage := Set(),
     gpgNameReal := "",
     gpgNameEmail := "",
+    gpgParameters := Seq.empty,
     gpgParametersFile := gpgParametersFileTask.value,
     gpgPassphrase := None,
     gpgSelectPassphrase := gpgSelectPassphraseTask.value,
@@ -33,6 +34,9 @@ object GpgSettings {
     ) ++
     inTask(gpgGenerateKey)(
       Seq(gpgParameters := Seq(gpgParametersFile.value.getPath))
+    ) ++
+    inTaskRef(gpgListKeys)(
+      Seq(gpgListKeys := listKeysTask.value)
     )
 
   def inTaskRef(t: Scoped)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {

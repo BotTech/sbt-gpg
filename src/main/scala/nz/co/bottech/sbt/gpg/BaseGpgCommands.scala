@@ -4,10 +4,11 @@ import java.io.File
 
 import nz.co.bottech.sbt.gpg.BaseGpgCommands._
 import nz.co.bottech.sbt.gpg.GpgErrors.{GpgCannotParseOutput, GpgUnknownVersionException}
+import nz.co.bottech.sbt.gpg.GpgListingParser.GpgListingParseException
 import sbt.util.Logger
 
 import scala.sys.process._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 trait BaseGpgCommands {
 
@@ -16,6 +17,7 @@ trait BaseGpgCommands {
   protected val GpgVersionRegex: String
   protected val VersionCommand: String
   protected val GenerateKeyCommand: String
+  protected val ListKeysCommand: Seq[String]
 
   def commandAndVersion(log: Logger): Either[Throwable, (String, GpgVersion)]
 
@@ -59,17 +61,45 @@ trait BaseGpgCommands {
   def generateKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): String = {
     log.info(s"Generating key: $gpg ${options.mkString(" ")} $GenerateKeyCommand ${parameters.mkString(" ")}")
     val lines = execute(gpg, options, GenerateKeyCommand, parameters, log)
-    val keyID = lines.collectFirst {
-      case KeyCreatedPattern(id) => id
+    val maybeKeyFingerprint = lines.collectFirst {
+      case KeyCreatedPattern(_, id, _) => id
     }
+    val keyFingerprint = maybeKeyFingerprint.getOrElse {
+      throw GpgCannotParseOutput("Unable to find key fingerprint in the output.")
+    }
+    log.info(s"Generated your new master key: $keyFingerprint")
     log.warn("You should keep your private master key very, very safe.")
     log.warn("First copy the master key pair to an encrypted external storage device using gpgCopyKey.")
     log.warn("Then delete the private master key from this device using gpgDeletePrivateKey.")
     log.warn(
       "Alternatively you can set gpgHomeDir to the location on the external storage device and then copy the subkey to this device."
     )
-    keyID.getOrElse {
-      throw GpgCannotParseOutput("Unable to find key Id in the output.")
+    keyFingerprint
+  }
+
+  def listKeys(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Seq[GpgKeyInfo] = {
+    val command = ListKeysCommand.head
+    val params = ListKeysCommand.tail ++ parameters
+    log.info(s"Listing keys: $gpg ${options.mkString(" ")} $command ${params.mkString(" ")}")
+    val lines = execute(gpg, options, command, params, log)
+    val listings = GpgListingParser.parseAll(lines).flatMap {
+      case Success(listing) => Some(listing)
+      case Failure(GpgListingParseException(message, line)) =>
+        log.error(message)
+        log.error(s"in: $line")
+        log.warn("This listing will be ignored.")
+        None
+      case Failure(ex) =>
+        log.error(ex.getMessage)
+        log.warn("This listing will be ignored.")
+        None
+    }
+    GpgKeyInfo.group(listings, log).flatMap {
+      case Success(keyInfo) => Some(keyInfo)
+      case Failure(ex) =>
+        log.error(ex.getMessage)
+        log.warn("This key will be ignored.")
+        None
     }
   }
 
@@ -88,5 +118,6 @@ trait BaseGpgCommands {
 object BaseGpgCommands {
 
   final val CurrentDirectory = "user.dir"
-  final val KeyCreatedPattern = """\[GNUPG:] KEY_CREATED B (.+)""".r
+  // Output format is listed in https://git.gnupg.org/cgi-bin/gitweb.cgi?p=gnupg.git;a=blob_plain;f=doc/DETAILS
+  final val KeyCreatedPattern = """\[GNUPG:] KEY_CREATED (B|P|S) ([0-9A-F]{40})(?: (.*))?""".r
 }

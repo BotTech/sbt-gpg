@@ -3,7 +3,7 @@ package nz.co.bottech.sbt.gpg
 import nz.co.bottech.sbt.gpg.GpgErrors.GpgUnknownVersionException
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import sbt.Keys._
-import sbt.{Def, _}
+import sbt._
 
 object GpgTasks {
 
@@ -76,13 +76,17 @@ object GpgTasks {
       name = gpgNameTask.value,
       passphrase = gpgSelectPassphrase.value
     )
-    val file = target.value / "gpg" / "parameters"
+    val file = target.value / ".gnupg" / "parameters"
     file.deleteOnExit()
     GpgParameterFile.create(parameters, file, log)
   }
 
   def generateKeyTask: Def.Initialize[Task[String]] = {
     runCommandTask(GpgVersion.commands(_).generateKey)
+  }
+
+  def listKeysTask: Def.Initialize[Task[Seq[GpgKeyInfo]]] = {
+    runCommandTask(GpgVersion.commands(_).listKeys)
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A

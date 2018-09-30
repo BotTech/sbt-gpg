@@ -92,7 +92,7 @@ object ScriptedGpgDockerPlugin extends AutoPlugin {
     val name = Keys.normalizedName.value
     val imageName = ImageName(namespace = organisation, repository = name)
     val commandProp =
-      s"""-D$gpgPropName=docker run --rm --mount type=bind,source=$$(pwd),target=/root $imageName:$imageTag proxy $gpgCommand"""
+      s"""-D$gpgPropName=docker run --mount type=bind,source=$$(pwd),target=/root/sbt-gpg $imageName:$imageTag proxy $gpgCommand"""
     val hiddenProps = hideOtherCommandProps(gpgPropName)
     commandProp +: hiddenProps
   }
