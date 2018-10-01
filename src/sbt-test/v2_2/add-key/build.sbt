@@ -15,8 +15,8 @@ gpgKeyLength := 4096
 gpgKeyUsage := Set(GpgKeyUsage.sign)
 gpgExpireDate := "30d"
 gpgPassphrase := Some("password123")
-gpgPassphraseFile := {
-  file("/") / "root" / ".gnupg" / gpgPassphraseFile.value.getName
+gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
+  file("/") / "root" / ".gnupg" / f.getName
 }
 
 TaskKey[Unit]("check") := {

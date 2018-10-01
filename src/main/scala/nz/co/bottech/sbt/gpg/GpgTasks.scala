@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import nz.co.bottech.sbt.gpg.GpgErrors.GpgUnknownVersionException
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import sbt.Keys._
-import sbt._
+import sbt.{Def, _}
 
 object GpgTasks {
 
@@ -87,15 +87,12 @@ object GpgTasks {
     val log = state.value.log
     val maybePassphrase = gpgSelectPassphrase.value
     val file = target.value / ".gnupg" / "passphrase"
-    maybePassphrase match {
-      case Some(passphrase) =>
-        file.deleteOnExit()
-        sbt.IO.write(file, passphrase, StandardCharsets.UTF_8, append = false)
-        log.debug(s"Parameters file written to $file.")
-      case None =>
-        log.error("Passphrase is not set.")
+    maybePassphrase.map { passphrase =>
+      file.deleteOnExit()
+      sbt.IO.write(file, passphrase, StandardCharsets.UTF_8, append = false)
+      log.debug(s"Parameters file written to $file.")
+      file
     }
-    file
   }
 
   def generateKeyTask: Def.Initialize[Task[String]] = {
@@ -108,6 +105,15 @@ object GpgTasks {
 
   def addKeyTask: Def.Initialize[Task[String]] = {
     runCommandTask(GpgVersion.commands(_).addKey)
+  }
+
+  def passphraseArgumentsTask: Def.Initialize[Task[Seq[GpgOption]]] = Def.task {
+    gpgPassphraseFile.value.toSeq.flatMap { file =>
+      Seq(
+        GpgOption.pinentryMode("loopback"),
+        GpgOption.passphraseFile(file)
+      )
+    }
   }
 
   def addKeyParametersTask: Def.Initialize[Task[Seq[String]]] = Def.task {
@@ -125,6 +131,12 @@ object GpgTasks {
       gpgKeyUsage.value.mkString(",")
     }
     Seq(fpr, algo, usage, gpgExpireDate.value)
+  }
+
+  def exportSubKeyTask: Def.Initialize[Task[File]] = Def.task {
+    // FIXME: This is a bit strange. The looseness of parameters is problematic in this case.
+    val _ = runCommandTask(GpgVersion.commands(_).exportSubKey).value
+    gpgOutputFile.value
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A

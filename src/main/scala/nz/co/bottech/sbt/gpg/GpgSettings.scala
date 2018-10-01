@@ -3,12 +3,14 @@ package nz.co.bottech.sbt.gpg
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import nz.co.bottech.sbt.gpg.GpgTasks._
 import sbt._
+import sbt.Keys._
 
 object GpgSettings {
 
   val rawSettings: Seq[Def.Setting[_]] = Seq(
     gpgAdditionalOptions := Seq.empty,
     gpgArguments := gpgArgumentsTask.value,
+    gpgArmor := true,
     gpgCommand := gpgCommandAndVersion.value._1,
     gpgCommandAndVersion := gpgCommandAndVersionTask.value,
     gpgExpireDate := "0",
@@ -44,11 +46,23 @@ object GpgSettings {
     ) ++
     inTask(gpgAddKey)(
       Seq(
-        gpgArguments := gpgArguments.value ++ Seq(
-          GpgOption.pinentryMode("loopback"),
-          GpgOption.passphraseFile(gpgPassphraseFile.value)
-        ),
+        gpgArguments := passphraseArgumentsTask.value ++ gpgArguments.value,
         gpgParameters := addKeyParametersTask.value
+      )
+    ) ++
+    inTaskRef(gpgExportSubKey)(
+      Seq(gpgExportSubKey := exportSubKeyTask.value)
+    ) ++
+    inTask(gpgExportSubKey)(
+      Seq(
+        gpgOutputFile := target.value / ".gnupg" / "exported-key.gpg",
+        gpgArguments := {
+          passphraseArgumentsTask.value ++
+            gpgArguments.value :+
+            GpgFlag.armor :+
+            GpgOption.output(gpgOutputFile.value)
+        },
+        gpgParameters := gpgKeyFingerprint.value.toSeq
       )
     )
 

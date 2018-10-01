@@ -15,9 +15,13 @@ final case class GpgFlag(flag: String) extends GpgArgument {
 
 object GpgFlag {
 
+  val armor = GpgFlag("--armor")
   val batch = GpgFlag("--batch")
-  val withColon = GpgFlag("--with-colons")
+  val fingerprint = GpgFlag("--fingerprint")
   val verbose = GpgFlag("--verbose")
+  val withColon = GpgFlag("--with-colons")
+  val withKeyGrip = GpgFlag("--with-keygrip")
+  val withSecret = GpgFlag("--with-secret")
 }
 
 final case class GpgOption(option: String, value: () => String) extends GpgArgument {
@@ -28,6 +32,7 @@ final case class GpgOption(option: String, value: () => String) extends GpgArgum
 object GpgOption {
 
   val homeDir = DirectoryOption("--homedir", create = true)
+  val output = FileOption("--output")
   val passphraseFile = FileOption("--passphrase-file")
   val pinentryMode = ToStringOption("--pinentry-mode")
   val statusFD = ToStringOption("--status-fd")

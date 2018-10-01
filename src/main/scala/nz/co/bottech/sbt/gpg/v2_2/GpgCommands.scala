@@ -9,12 +9,17 @@ object GpgCommands extends BaseGpgCommands {
   protected override final val GpgCommand = "gpg"
   protected override final val GpgVersionRegex = "gpg.* 2.2.*"
   protected override final val AddKeyCommand = "--quick-add-key"
+  protected override final val ExportSubKeyCommand = "--export-secret-subkeys"
   protected override final val GenerateKeyCommand = "--full-generate-key"
   protected override final val VersionCommand = "--version"
-  // TODO: Make these arguments instead.
-  protected override final val ListKeysCommand = Seq("--list-keys", "--with-keygrip", "--with-secret")
+  protected override final val ListKeysCommand = "--list-keys"
 
   override def commandAndVersion(log: Logger): Either[Throwable, (String, GpgVersion)] = {
     executeVersionCommand(GpgVersion2Dot2, log)
+  }
+
+  override def listKeys(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Seq[GpgKeyInfo] = {
+    val args = Seq(GpgFlag.withKeyGrip, GpgFlag.withSecret).flatMap(_.prepare()) ++ options
+    super.listKeys(gpg, args, parameters, log)
   }
 }

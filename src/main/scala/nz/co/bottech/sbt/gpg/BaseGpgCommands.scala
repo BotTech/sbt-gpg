@@ -16,8 +16,9 @@ trait BaseGpgCommands {
   protected val GpgCommand: String
   protected val GpgVersionRegex: String
   protected val AddKeyCommand: String
+  protected val ExportSubKeyCommand: String
   protected val GenerateKeyCommand: String
-  protected val ListKeysCommand: Seq[String]
+  protected val ListKeysCommand: String
   protected val VersionCommand: String
 
   def commandAndVersion(log: Logger): Either[Throwable, (String, GpgVersion)]
@@ -73,10 +74,8 @@ trait BaseGpgCommands {
   }
 
   def listKeys(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Seq[GpgKeyInfo] = {
-    val command = ListKeysCommand.head
-    val params = ListKeysCommand.tail ++ parameters
-    log.info(s"Listing keys: $gpg ${options.mkString(" ")} $command ${params.mkString(" ")}")
-    val lines = execute(gpg, options, command, params, log)
+    log.info(s"Generating key: $gpg ${options.mkString(" ")} $ListKeysCommand ${parameters.mkString(" ")}")
+    val lines = execute(gpg, options, ListKeysCommand, parameters, log)
     val listings = GpgListingParser.parseAll(lines).flatMap {
       case Success(listing) => Some(listing)
       case Failure(GpgListingParseException(message, line)) =>
@@ -104,6 +103,11 @@ trait BaseGpgCommands {
     val keyFingerprint = parseKeyCreatedFingerprint(lines)
     log.info(s"Generated your new master key: $keyFingerprint")
     keyFingerprint
+  }
+
+  def exportSubKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+    log.info(s"Exporting key: $gpg ${options.mkString(" ")} $ExportSubKeyCommand ${parameters.mkString(" ")}")
+    execute(gpg, options, ExportSubKeyCommand, parameters, log)
   }
 
   def execute(gpg: String, options: Seq[String], command: String, parameters: Seq[String], log: Logger): Seq[String] = {
