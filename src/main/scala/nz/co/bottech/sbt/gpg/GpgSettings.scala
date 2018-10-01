@@ -22,6 +22,7 @@ object GpgSettings {
     gpgParameters := Seq.empty,
     gpgParametersFile := gpgParametersFileTask.value,
     gpgPassphrase := None,
+    gpgPassphraseFile := gpgPassphraseFileTask.value,
     gpgSelectPassphrase := gpgSelectPassphraseTask.value,
     gpgStatusFileDescriptor := 1,
     gpgSubkeyLength := gpgKeyLength.value,
@@ -37,6 +38,18 @@ object GpgSettings {
     ) ++
     inTaskRef(gpgListKeys)(
       Seq(gpgListKeys := listKeysTask.value)
+    ) ++
+    inTaskRef(gpgAddKey)(
+      Seq(gpgAddKey := addKeyTask.value)
+    ) ++
+    inTask(gpgAddKey)(
+      Seq(
+        gpgArguments := gpgArguments.value ++ Seq(
+          GpgOption.pinentryMode("loopback"),
+          GpgOption.passphraseFile(gpgPassphraseFile.value)
+        ),
+        gpgParameters := addKeyParametersTask.value
+      )
     )
 
   def inTaskRef(t: Scoped)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {

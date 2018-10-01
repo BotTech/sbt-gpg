@@ -5,6 +5,7 @@ import sbt._
 trait GpgKeys {
 
   val gpgAdditionalOptions = settingKey[Seq[String]]("Additional options to pass to gpg.")
+  val gpgAddKey = taskKey[String]("Adds a sub key pair to an existing key.")
   val gpgArguments = taskKey[Seq[GpgArgument]]("The arguments to pass to gpg.")
   val gpgCommand = taskKey[String]("The GnuPGP gpg CLI command.")
   val gpgCommandAndVersion = taskKey[(String, GpgVersion)]("The GnuPGP gpg CLI command and version.")
@@ -18,9 +19,10 @@ trait GpgKeys {
   val gpgListKeys = taskKey[Seq[GpgKeyInfo]]("List the existing keys.")
   val gpgNameReal = settingKey[String]("Name.")
   val gpgNameEmail = settingKey[String]("Email address.")
-  val gpgPassphrase = settingKey[Option[String]]("Passphrase for the secret key.")
   val gpgParameters = taskKey[Seq[String]]("Parameters to the command.")
   val gpgParametersFile = taskKey[File]("The parameters file.")
+  val gpgPassphrase = settingKey[Option[String]]("Passphrase for the secret key.")
+  val gpgPassphraseFile = taskKey[File]("Passphrase file for the secret key.")
   val gpgSelectPassphrase = taskKey[Option[String]]("Selects the passphrase for the secret key either from gpgPassphrase or the ~/.sbt/.credentials file.")
   val gpgStatusFileDescriptor = settingKey[Int]("The file descriptor for writing status messages.")
   val gpgSubkeyLength = settingKey[Int]("The length of the generated subkey in bits.")

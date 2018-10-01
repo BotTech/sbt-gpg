@@ -17,7 +17,6 @@ object GpgFlag {
 
   val batch = GpgFlag("--batch")
   val withColon = GpgFlag("--with-colons")
-  val noPermissionWarning = GpgFlag("--no-permission-warning")
   val verbose = GpgFlag("--verbose")
 }
 
@@ -29,6 +28,8 @@ final case class GpgOption(option: String, value: () => String) extends GpgArgum
 object GpgOption {
 
   val homeDir = DirectoryOption("--homedir", create = true)
+  val passphraseFile = FileOption("--passphrase-file")
+  val pinentryMode = ToStringOption("--pinentry-mode")
   val statusFD = ToStringOption("--status-fd")
 }
 
@@ -44,6 +45,11 @@ final case class DirectoryOption(option: String, create: Boolean) extends (File 
     }
     directory.toString
   }
+}
+
+final case class FileOption(option: String) extends (File => GpgOption) {
+
+  override def apply(file: File): GpgOption = GpgOption(option, () => file.getPath)
 }
 
 final case class ToStringOption(option: String) extends (Any => GpgOption) {

@@ -1,5 +1,7 @@
 package nz.co.bottech.sbt.gpg
 
+import java.nio.charset.StandardCharsets
+
 import nz.co.bottech.sbt.gpg.GpgErrors.GpgUnknownVersionException
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import sbt.Keys._
@@ -81,12 +83,48 @@ object GpgTasks {
     GpgParameterFile.create(parameters, file, log)
   }
 
+  def gpgPassphraseFileTask = Def.task {
+    val log = state.value.log
+    val maybePassphrase = gpgSelectPassphrase.value
+    val file = target.value / ".gnupg" / "passphrase"
+    maybePassphrase match {
+      case Some(passphrase) =>
+        file.deleteOnExit()
+        sbt.IO.write(file, passphrase, StandardCharsets.UTF_8, append = false)
+        log.debug(s"Parameters file written to $file.")
+      case None =>
+        log.error("Passphrase is not set.")
+    }
+    file
+  }
+
   def generateKeyTask: Def.Initialize[Task[String]] = {
     runCommandTask(GpgVersion.commands(_).generateKey)
   }
 
   def listKeysTask: Def.Initialize[Task[Seq[GpgKeyInfo]]] = {
     runCommandTask(GpgVersion.commands(_).listKeys)
+  }
+
+  def addKeyTask: Def.Initialize[Task[String]] = {
+    runCommandTask(GpgVersion.commands(_).addKey)
+  }
+
+  def addKeyParametersTask: Def.Initialize[Task[Seq[String]]] = Def.task {
+    val fpr = gpgKeyFingerprint.value.getOrElse("default")
+    val keyType = gpgKeyType.value
+    val algo = if (keyType.isEmpty) {
+      "default"
+    } else {
+      keyType + gpgKeyLength.value
+    }
+    val keyUsage = gpgKeyUsage.value
+    val usage = if (keyUsage.isEmpty) {
+      "default"
+    } else {
+      gpgKeyUsage.value.mkString(",")
+    }
+    Seq(fpr, algo, usage, gpgExpireDate.value)
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A

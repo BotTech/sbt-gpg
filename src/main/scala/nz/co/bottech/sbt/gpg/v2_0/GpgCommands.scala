@@ -8,11 +8,17 @@ object GpgCommands extends BaseGpgCommands {
   protected override final val GpgCommandProperty = "gpg.command.v2_0"
   protected override final val GpgCommand = "gpg2"
   protected override final val GpgVersionRegex = "gpg.* 2.0.*"
-  protected override final val VersionCommand = "--version"
+  protected override final val AddKeyCommand = "not-supported"
   protected override final val GenerateKeyCommand = "--gen-key"
+  // TODO: Make these arguments instead.
   protected override final val ListKeysCommand = Seq("--list-keys", "--fingerprint", "--fingerprint")
+  protected override final val VersionCommand = "--version"
 
   override def commandAndVersion(log: Logger): Either[Throwable, (String, GpgVersion)] = {
     executeVersionCommand(GpgVersion2Dot0, log)
+  }
+
+  override def addKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): String = {
+    throw new UnsupportedOperationException("GnuPG 2.0 does not support adding a key in batch mode.")
   }
 }
