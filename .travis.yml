@@ -16,11 +16,11 @@ addons:
 jobs:
   include:
   - stage: test
-    script: sbt V2_0/scripted *
+    script: sbt "V2_0/scripted *"
   - stage: test
-    script: sbt V2_1/scripted *
+    script: sbt "V2_1/scripted *"
   - stage: test
-    script: sbt V2_2/scripted *
+    script: sbt "V2_2/scripted *"
 
 deploy:
   provider: script
