@@ -62,7 +62,7 @@ object GpgSettings {
             GpgFlag.armor :+
             GpgOption.output(gpgOutputFile.value)
         },
-        gpgParameters := gpgKeyFingerprint.value.toSeq
+        gpgParameters := gpgKeyFingerprint.value.map(fpr => s"$fpr!").toSeq
       )
     )
 

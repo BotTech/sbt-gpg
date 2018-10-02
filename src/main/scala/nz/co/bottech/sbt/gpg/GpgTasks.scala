@@ -132,7 +132,6 @@ object GpgTasks {
   }
 
   def exportSubKeyTask: Def.Initialize[Task[File]] = Def.task {
-    // FIXME: This is a bit strange. The looseness of parameters is problematic in this case.
     val _ = runCommandTask(GpgVersion.commands(_).exportSubKey).value
     gpgOutputFile.value
   }
