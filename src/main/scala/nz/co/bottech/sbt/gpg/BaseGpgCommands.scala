@@ -18,6 +18,7 @@ trait BaseGpgCommands {
   protected val AddKeyCommand: String
   protected val ExportSubKeyCommand: String
   protected val GenerateKeyCommand: String
+  protected val ImportKeyCommand: String
   protected val ListKeysCommand: String
   protected val VersionCommand: String
 
@@ -72,7 +73,7 @@ trait BaseGpgCommands {
     val keyFingerprint = parseKeyCreatedFingerprint(lines)
     log.info(s"Generated your new master key: $keyFingerprint")
     log.warn("You should keep your private master key very, very safe.")
-    log.warn("First copy the master key pair to an encrypted external storage device using gpgCopyKey.")
+    log.warn("First copy the master key to an encrypted external storage device using gpgCopyKey.")
     log.warn("Then delete the private master key from this device using gpgDeletePrivateKey.")
     log.warn(
       "Alternatively you can set gpgHomeDir to the location on the external storage device and then copy the subkey to this device."
@@ -115,6 +116,11 @@ trait BaseGpgCommands {
   def exportSubKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
     log.info(s"Exporting key: $gpg ${options.mkString(" ")} $ExportSubKeyCommand ${parameters.mkString(" ")}")
     execute(gpg, options, ExportSubKeyCommand, parameters, log)
+  }
+
+  def importKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+    log.info(s"Importing key: $gpg ${options.mkString(" ")} $ImportKeyCommand ${parameters.mkString(" ")}")
+    execute(gpg, options, ImportKeyCommand, parameters, log)
   }
 
   def execute(gpg: String, options: Seq[String], command: String, parameters: Seq[String], log: Logger): Seq[String] = {

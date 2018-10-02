@@ -15,6 +15,7 @@ object GpgSettings {
     gpgCommandAndVersion := gpgCommandAndVersionTask.value,
     gpgExpireDate := "0",
     gpgHomeDir := None,
+    gpgKeyFile := target.value / ".gnupg" / "key.asc",
     gpgKeyFingerprint := None,
     gpgKeyLength := 4096,
     gpgKeyType := "RSA",
@@ -55,15 +56,15 @@ object GpgSettings {
     ) ++
     inTask(gpgExportSubKey)(
       Seq(
-        gpgOutputFile := target.value / ".gnupg" / "exported-key.gpg",
-        gpgArguments := {
-          passphraseArgumentsTask.value ++
-            gpgArguments.value :+
-            GpgFlag.armor :+
-            GpgOption.output(gpgOutputFile.value)
-        },
+        gpgArguments := exportArgumentsTask.value,
         gpgParameters := gpgKeyFingerprint.value.map(fpr => s"$fpr!").toSeq
       )
+    ) ++
+    inTaskRef(gpgImportKey)(
+      Seq(gpgImportKey := importKeyTask.value)
+    ) ++
+    inTask(gpgImportKey)(
+      Seq(gpgParameters := Seq(gpgKeyFile.value.getPath))
     )
 
   def inTaskRef(t: Scoped)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {

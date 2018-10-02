@@ -11,6 +11,7 @@ object GpgCommands extends BaseGpgCommands {
   protected override final val AddKeyCommand = "not-supported"
   protected override final val ExportSubKeyCommand = "--export-secret-subkeys"
   protected override final val GenerateKeyCommand = "--full-gen-key"
+  protected override final val ImportKeyCommand = "--import"
   protected override final val ListKeysCommand = "--list-keys"
   protected override final val VersionCommand = "--version"
 
@@ -23,7 +24,7 @@ object GpgCommands extends BaseGpgCommands {
       GpgFlag.withKeyGrip,
       GpgFlag.withSecret,
       GpgFlag.fingerprint,
-      GpgFlag.fingerprint // Include this twice to get the fingerprint of sub keys.
+      GpgFlag.fingerprint // Include this twice to get the fingerprint of subkeys.
     ).flatMap(_.prepare()) ++ options
     super.listKeys(gpg, args, parameters, log)
   }

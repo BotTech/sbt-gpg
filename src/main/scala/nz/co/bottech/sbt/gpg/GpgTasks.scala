@@ -133,7 +133,23 @@ object GpgTasks {
 
   def exportSubKeyTask: Def.Initialize[Task[File]] = Def.task {
     val _ = runCommandTask(GpgVersion.commands(_).exportSubKey).value
-    gpgOutputFile.value
+    gpgKeyFile.value
+  }
+
+  def exportArgumentsTask: Def.Initialize[Task[Seq[GpgArgument]]] = Def.task {
+    val armor = if (gpgArmor.value) {
+      Seq(GpgFlag.armor)
+    } else {
+      Seq.empty[GpgArgument]
+    }
+    passphraseArgumentsTask.value ++
+      armor ++
+      gpgArguments.value :+
+      GpgOption.output(gpgKeyFile.value)
+  }
+
+  def importKeyTask: Def.Initialize[Task[Unit]] = Def.task {
+    runCommandTask(GpgVersion.commands(_).importKey).value
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A

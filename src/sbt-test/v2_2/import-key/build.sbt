@@ -1,35 +1,25 @@
-import java.time.Duration
-import java.time.temporal.ChronoUnit
-
-import nz.co.bottech.sbt.gpg._
-import nz.co.bottech.sbt.gpg.GpgListingParser._
 import nz.co.bottech.sbt.gpg.GpgListingParser.Capability._
 import org.scalactic.TripleEquals._
 import org.scalactic.Requirements._
 
 scalaVersion := "2.12.6"
 
-gpgKeyFingerprint := Some("3F43DA9CAB5977759FC2E555709CF2B6FF067DEB")
-gpgKeyType := "RSA"
-gpgKeyLength := 4096
-gpgKeyUsage := Set(GpgKeyUsage.sign)
-gpgExpireDate := "30d"
 gpgPassphrase := Some("password123")
 gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
   file("/") / "root" / ".gnupg" / f.getName
 }
+gpgImportKey / gpgKeyFile := file("/") / "root" / ".gnupg" / "key.asc"
 
 TaskKey[Unit]("check") := {
-  val (fingerprint, keys) = Def.taskDyn {
-    val fingerprint = gpgAddKey.value
+  val keys = Def.taskDyn {
+    val _ = gpgImportKey.value
     Def.task {
-      val keys = gpgListKeys.value
-      (fingerprint, keys)
+      gpgListKeys.value
     }
   }.value
   val secondSignSubKey = keys(1).subKeys(1)
   require(secondSignSubKey.keyLength === gpgKeyLength.value)
   require(secondSignSubKey.algorithm === 1)
   require(secondSignSubKey.capabilities === Set(Sign))
-  require(secondSignSubKey.fingerprint === fingerprint)
+  require(secondSignSubKey.fingerprint === "92AD2D01E17283B6E3E07FEF00E4371F46DC5AD8")
 }

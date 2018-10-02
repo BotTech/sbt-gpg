@@ -5,7 +5,7 @@ gpgPassphrase := Some("password123")
 gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
   file("/") / "root" / ".gnupg" / f.getName
 }
-gpgExportSubKey / gpgOutputFile := file("/") / "root" / ".gnupg" / "exported-key.gpg"
+gpgExportSubKey / gpgKeyFile := file("/") / "root" / ".gnupg" / "key.asc"
 
 TaskKey[Unit]("check") := {
   gpgExportSubKey.value
