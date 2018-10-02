@@ -1,2 +1,2 @@
 > check
-$ exists target/.gnupg/key.gpg
+$ exists target/.gnupg/key.asc
