@@ -59,6 +59,13 @@ trait BaseGpgCommands {
       )
   }
 
+  def passphraseArguments(file: File): Seq[GpgArgument] = {
+    Seq(
+      GpgOption.pinentryMode("loopback"),
+      GpgOption.passphraseFile(file)
+    )
+  }
+
   def generateKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): String = {
     log.info(s"Generating key: $gpg ${options.mkString(" ")} $GenerateKeyCommand ${parameters.mkString(" ")}")
     val lines = execute(gpg, options, GenerateKeyCommand, parameters, log)

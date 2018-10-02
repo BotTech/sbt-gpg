@@ -8,7 +8,5 @@ gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
 gpgExportSubKey / gpgOutputFile := file("/") / "root" / ".gnupg" / "exported-key.gpg"
 
 TaskKey[Unit]("check") := {
-  val log = state.value.log
-  log.info("running gpgExportSubKey task")
   gpgExportSubKey.value
 }

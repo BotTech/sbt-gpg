@@ -1,5 +1,7 @@
 package nz.co.bottech.sbt.gpg.v2_0
 
+import java.io.File
+
 import nz.co.bottech.sbt.gpg._
 import sbt.util.Logger
 
@@ -16,6 +18,10 @@ object GpgCommands extends BaseGpgCommands {
 
   override def commandAndVersion(log: Logger): Either[Throwable, (String, GpgVersion)] = {
     executeVersionCommand(GpgVersion2Dot0, log)
+  }
+
+  override def passphraseArguments(file: File): Seq[GpgArgument] = {
+    Seq(GpgOption.passphraseFile(file))
   }
 
   override def listKeys(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Seq[GpgKeyInfo] = {

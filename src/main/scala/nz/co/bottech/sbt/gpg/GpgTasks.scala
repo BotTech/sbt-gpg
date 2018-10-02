@@ -107,12 +107,10 @@ object GpgTasks {
     runCommandTask(GpgVersion.commands(_).addKey)
   }
 
-  def passphraseArgumentsTask: Def.Initialize[Task[Seq[GpgOption]]] = Def.task {
+  def passphraseArgumentsTask: Def.Initialize[Task[Seq[GpgArgument]]] = Def.task {
+    val commands = GpgVersion.commands(gpgVersion.value)
     gpgPassphraseFile.value.toSeq.flatMap { file =>
-      Seq(
-        GpgOption.pinentryMode("loopback"),
-        GpgOption.passphraseFile(file)
-      )
+      commands.passphraseArguments(file)
     }
   }
 

@@ -20,8 +20,6 @@ gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
 }
 
 TaskKey[Unit]("check") := {
-  val log = state.value.log
-  log.info("running gpgAddKey task")
   val (fingerprint, keys) = Def.taskDyn {
     val fingerprint = gpgAddKey.value
     Def.task {

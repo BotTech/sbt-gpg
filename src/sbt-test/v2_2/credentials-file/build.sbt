@@ -12,7 +12,5 @@ gpgParametersFile := {
 }
 
 TaskKey[Unit]("check") := {
-  val log = state.value.log
-  log.info("running gpgGenerateKey task")
   gpgGenerateKey.value
 }

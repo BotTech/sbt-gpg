@@ -17,8 +17,6 @@ gpgParametersFile := {
 }
 
 TaskKey[Unit]("check") := {
-  val log = state.value.log
-  log.info("running gpgListKeys task")
   val keys = gpgListKeys.value
   require(keys.size === 2)
   val alice = GpgUserID(
