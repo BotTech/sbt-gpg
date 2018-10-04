@@ -8,10 +8,6 @@ import org.scalactic.Requirements._
 
 scalaVersion := "2.12.6"
 
-gpgParametersFile := {
-  file("/") / "root" / ".gnupg" / gpgParametersFile.value.getName
-}
-
 TaskKey[Unit]("check") := {
   val keys = gpgListKeys.value
   require(keys.size === 2)

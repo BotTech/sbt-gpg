@@ -13,6 +13,7 @@ object GpgCommands extends BaseGpgCommands {
   protected override final val GenerateKeyCommand = "--full-gen-key"
   protected override final val ImportKeyCommand = "--import"
   protected override final val ListKeysCommand = "--list-keys"
+  protected override final val SignCommand = "--detach-sig"
   protected override final val VersionCommand = "--version"
 
   override def commandAndVersion(log: Logger): Either[Throwable, (String, GpgVersion)] = {

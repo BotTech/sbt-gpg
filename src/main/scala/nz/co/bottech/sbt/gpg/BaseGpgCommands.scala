@@ -20,6 +20,7 @@ trait BaseGpgCommands {
   protected val GenerateKeyCommand: String
   protected val ImportKeyCommand: String
   protected val ListKeysCommand: String
+  protected val SignCommand: String
   protected val VersionCommand: String
 
   def commandAndVersion(log: Logger): Either[Throwable, (String, GpgVersion)]
@@ -68,8 +69,7 @@ trait BaseGpgCommands {
   }
 
   def generateKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): String = {
-    log.info(s"Generating key: $gpg ${options.mkString(" ")} $GenerateKeyCommand ${parameters.mkString(" ")}")
-    val lines = execute(gpg, options, GenerateKeyCommand, parameters, log)
+    val lines = logAndExecute("Generating key", gpg, options, GenerateKeyCommand, parameters, log)
     val keyFingerprint = parseKeyCreatedFingerprint(lines)
     log.info(s"Generated your new master key: $keyFingerprint")
     log.warn("You should keep your private master key very, very safe.")
@@ -82,8 +82,7 @@ trait BaseGpgCommands {
   }
 
   def listKeys(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Seq[GpgKeyInfo] = {
-    log.info(s"Generating key: $gpg ${options.mkString(" ")} $ListKeysCommand ${parameters.mkString(" ")}")
-    val lines = execute(gpg, options, ListKeysCommand, parameters, log)
+    val lines = logAndExecute("Listing keys", gpg, options, ListKeysCommand, parameters, log)
     val listings = GpgListingParser.parseAll(lines).flatMap {
       case Success(listing) => Some(listing)
       case Failure(GpgListingParseException(message, line)) =>
@@ -106,21 +105,32 @@ trait BaseGpgCommands {
   }
 
   def addKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): String = {
-    log.info(s"Adding key: $gpg ${options.mkString(" ")} $AddKeyCommand ${parameters.mkString(" ")}")
-    val lines = execute(gpg, options, AddKeyCommand, parameters, log)
+    val lines = logAndExecute("Adding key", gpg, options, AddKeyCommand, parameters, log)
     val keyFingerprint = parseKeyCreatedFingerprint(lines)
     log.info(s"Generated your new master key: $keyFingerprint")
     keyFingerprint
   }
 
   def exportSubKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
-    log.info(s"Exporting key: $gpg ${options.mkString(" ")} $ExportSubKeyCommand ${parameters.mkString(" ")}")
-    execute(gpg, options, ExportSubKeyCommand, parameters, log)
+    logAndExecute("Exporting key", gpg, options, ExportSubKeyCommand, parameters, log)
   }
 
   def importKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
-    log.info(s"Importing key: $gpg ${options.mkString(" ")} $ImportKeyCommand ${parameters.mkString(" ")}")
-    execute(gpg, options, ImportKeyCommand, parameters, log)
+    logAndExecute("Importing key", gpg, options, ImportKeyCommand, parameters, log)
+  }
+
+  def sign(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+    logAndExecute("Signing message", gpg, options, SignCommand, parameters, log)
+  }
+
+  private def logAndExecute(message: String,
+                            gpg: String,
+                            options: Seq[String],
+                            command: String,
+                            parameters: Seq[String],
+                            log: Logger): Seq[String] = {
+    log.info(s"$message: $gpg ${options.mkString(" ")} $command ${parameters.mkString(" ")}")
+    execute(gpg, options, command, parameters, log)
   }
 
   def execute(gpg: String, options: Seq[String], command: String, parameters: Seq[String], log: Logger): Seq[String] = {

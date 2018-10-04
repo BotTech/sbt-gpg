@@ -9,7 +9,7 @@ import org.scalactic.Requirements._
 
 scalaVersion := "2.12.6"
 
-gpgKeyFingerprint := Some("3F43DA9CAB5977759FC2E555709CF2B6FF067DEB")
+gpgKeyFingerprint := "3F43DA9CAB5977759FC2E555709CF2B6FF067DEB"
 gpgKeyType := "RSA"
 gpgKeyLength := 4096
 gpgKeyUsage := Set(GpgKeyUsage.sign)

@@ -115,7 +115,7 @@ object GpgTasks {
   }
 
   def addKeyParametersTask: Def.Initialize[Task[Seq[String]]] = Def.task {
-    val fpr = gpgKeyFingerprint.value.getOrElse("default")
+    val fpr = (gpgKeyFingerprint ?? "default").value
     val keyType = gpgKeyType.value
     val algo = if (keyType.isEmpty) {
       "default"
@@ -132,7 +132,7 @@ object GpgTasks {
   }
 
   def exportSubKeyTask: Def.Initialize[Task[File]] = Def.task {
-    val _ = runCommandTask(GpgVersion.commands(_).exportSubKey).value
+    runCommandTask(GpgVersion.commands(_).exportSubKey).value
     gpgKeyFile.value
   }
 
@@ -142,14 +142,26 @@ object GpgTasks {
     } else {
       Seq.empty[GpgArgument]
     }
-    passphraseArgumentsTask.value ++
-      armor ++
-      gpgArguments.value :+
+    gpgArguments.value ++
+      passphraseArgumentsTask.value ++
+      armor :+
       GpgOption.output(gpgKeyFile.value)
   }
 
   def importKeyTask: Def.Initialize[Task[Unit]] = Def.task {
     runCommandTask(GpgVersion.commands(_).importKey).value
+  }
+
+  def signArgumentsTask: Def.Initialize[Task[Seq[GpgArgument]]] = Def.task {
+    gpgArguments.value ++
+      passphraseArgumentsTask.value :+
+      GpgOption.localUser(GpgSettings.mandatoryTask(gpgKeyFingerprint).value) :+
+      GpgOption.output(GpgSettings.mandatoryTask(gpgSignatureFile).value)
+  }
+
+  def signTask: Def.Initialize[Task[File]] = Def.task {
+    runCommandTask(GpgVersion.commands(_).sign).value
+    GpgSettings.mandatoryTask(gpgSignatureFile).value
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A

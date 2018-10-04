@@ -2,7 +2,7 @@ package nz.co.bottech.sbt.gpg
 
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import nz.co.bottech.sbt.gpg.GpgTasks._
-import sbt._
+import sbt.{Def, _}
 import sbt.Keys._
 
 object GpgSettings {
@@ -16,7 +16,6 @@ object GpgSettings {
     gpgExpireDate := "0",
     gpgHomeDir := None,
     gpgKeyFile := target.value / ".gnupg" / "key.asc",
-    gpgKeyFingerprint := None,
     gpgKeyLength := 4096,
     gpgKeyType := "RSA",
     gpgKeyUsage := Set(),
@@ -57,7 +56,7 @@ object GpgSettings {
     inTask(gpgExportSubKey)(
       Seq(
         gpgArguments := exportArgumentsTask.value,
-        gpgParameters := gpgKeyFingerprint.value.map(fpr => s"$fpr!").toSeq
+        gpgParameters := Seq(mandatoryTask(gpgKeyFingerprint).value + "!")
       )
     ) ++
     inTaskRef(gpgImportKey)(
@@ -65,6 +64,15 @@ object GpgSettings {
     ) ++
     inTask(gpgImportKey)(
       Seq(gpgParameters := Seq(gpgKeyFile.value.getPath))
+    ) ++
+    inTaskRef(gpgSign)(
+      Seq(gpgSign := signTask.value)
+    ) ++
+    inTask(gpgSign)(
+      Seq(
+        gpgArguments := signArgumentsTask.value,
+        gpgParameters := Seq(mandatoryTask(gpgMessage).value.getPath)
+      )
     )
 
   def inTaskRef(t: Scoped)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {
@@ -73,5 +81,13 @@ object GpgSettings {
 
   def inScopeRef(scope: Scope)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {
     Project.transformRef(Scope.replaceThis(scope), ss)
+  }
+
+  def mandatorySetting[A](setting: SettingKey[A]) = {
+    setting ?? (throw new RuntimeException(s"${setting.key.label} must be set."))
+  }
+
+  def mandatoryTask[A](task: TaskKey[A]): Def.Initialize[Task[A]] = {
+    task ?? (throw new RuntimeException(s"${task.key.label} must be set."))
   }
 }

@@ -3,12 +3,16 @@ import sbt.librarymanagement.ivy.Credentials
 
 scalaVersion := "2.12.6"
 
-gpgNameReal := "Jim Bob"
-gpgNameEmail := "jim.bob@example.com"
 credentials += Credentials("GnuPG Realm", "gpg", "", "topsecret")
 
-gpgParametersFile := {
-  file("/") / "root" / ".gnupg" / gpgParametersFile.value.getName
+inTask(gpgGenerateKey) {
+  Seq(
+    gpgNameReal := "Jim Bob",
+    gpgNameEmail := "jim.bob@example.com",
+    gpgParametersFile := {
+      file("/") / "root" / ".gnupg" / gpgParametersFile.value.getName
+    }
+  )
 }
 
 TaskKey[Unit]("check") := {

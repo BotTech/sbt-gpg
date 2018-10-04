@@ -33,6 +33,7 @@ object GpgOption {
 
   val homeDir = DirectoryOption("--homedir", create = true)
   val output = FileOption("--output")
+  val localUser = ToStringOption("--local-user")
   val passphraseFile = FileOption("--passphrase-file")
   val pinentryMode = ToStringOption("--pinentry-mode")
   val statusFD = ToStringOption("--status-fd")

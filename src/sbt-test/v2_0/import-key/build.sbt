@@ -5,10 +5,15 @@ import org.scalactic.Requirements._
 scalaVersion := "2.12.6"
 
 gpgPassphrase := Some("password123")
-gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
-  file("/") / "root" / ".gnupg" / f.getName
+
+inTask(gpgImportKey) {
+  Seq(
+    gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
+      file("/") / "root" / ".gnupg" / f.getName
+    },
+    gpgKeyFile := file("/") / "root" / ".gnupg" / "key.asc"
+  )
 }
-gpgImportKey / gpgKeyFile := file("/") / "root" / ".gnupg" / "key.asc"
 
 TaskKey[Unit]("check") := {
   val keys = Def.taskDyn {
