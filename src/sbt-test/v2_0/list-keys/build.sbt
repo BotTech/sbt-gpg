@@ -9,8 +9,6 @@ import org.scalactic.Requirements._
 scalaVersion := "2.12.6"
 
 TaskKey[Unit]("check") := {
-  val log = state.value.log
-  log.info("running gpgListKeys task")
   val keys = gpgListKeys.value
   require(keys.size === 2)
   val alice = GpgUserID(

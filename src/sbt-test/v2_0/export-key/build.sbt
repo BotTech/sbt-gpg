@@ -13,7 +13,5 @@ inTask(gpgExportSubkey) {
 }
 
 TaskKey[Unit]("check") := {
-  val log = state.value.log
-  log.info("running gpgExportSubkey task")
   gpgExportSubkey.value
 }
