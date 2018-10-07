@@ -166,7 +166,7 @@ object GpgTasks {
   }
 
   def signatureFileTask = Def.task {
-    val message = gpgMessage.value
+    val message = GpgSettings.mandatoryTask(gpgMessage).value
     if (gpgArmor.value) {
       file(s"${message.getPath}.asc")
     } else {
