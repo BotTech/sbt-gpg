@@ -158,10 +158,10 @@ Special thanks to:
 * [Travis CI] for running the build.
 * All the other OSS contributors who made this project possible.
 
-[Build Status]: https://travis-ci.org/$organizationName;format="word"$/$name$.svg?branch=master
+[Build Status]: https://travis-ci.org/BotTech/sbt-gpg.svg?branch=master
 [Debian Wiki - Subkeys]: https://wiki.debian.org/Subkeys
 [Docker]: https://www.docker.com
-[Download]: https://api.bintray.com/packages/$organizationName;format="word,lower"$/sbt-plugins/$name$/images/download.svg
+[Download]: https://api.bintray.com/packages/bottech/sbt-plugins/sbt-gpg/images/download.svg
 [Github]: https://github.com
 [GnuPG]: https://www.gnupg.org/index.html
 [GnuPG Download]: https://www.gnupg.org/download/index.html
