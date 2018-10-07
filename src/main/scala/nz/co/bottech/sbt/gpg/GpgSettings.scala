@@ -35,6 +35,7 @@ object GpgSettings {
     inTask(gpgGenerateKey)(
       Seq(
         gpgParameters := Seq(gpgParametersFile.value.getPath),
+        gpgSelectPassphrase := None,
         gpgParametersFile := gpgParametersFileTask.value
       )
     ) ++

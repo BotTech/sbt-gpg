@@ -1,8 +1,4 @@
-import sbt.util
-
 scalaVersion := "2.12.6"
-
-logLevel := util.Level.Debug
 
 gpgPassphrase := Some("password123")
 
