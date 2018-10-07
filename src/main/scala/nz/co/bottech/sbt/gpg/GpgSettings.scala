@@ -80,10 +80,10 @@ object GpgSettings {
       Seq(gpgSigner := signerTask.value)
     ) ++
     inTaskRef(gpgSignedArtifacts)(
-      Seq(
-        gpgArmor := (gpgSigner / gpgArmor).value,
-        gpgSignedArtifacts := signedArtifactsTask.value
-      )
+      Seq(gpgSignedArtifacts := signedArtifactsTask.value)
+    ) ++
+    inTask(gpgSignedArtifacts)(
+      Seq(gpgArmor := (gpgSigner / gpgArmor).value)
     )
 
   def inTaskRef(t: Scoped)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {
