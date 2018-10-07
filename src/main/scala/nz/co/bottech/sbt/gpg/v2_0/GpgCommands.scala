@@ -11,7 +11,7 @@ object GpgCommands extends BaseGpgCommands {
   protected override final val GpgCommand = "gpg2"
   protected override final val GpgVersionRegex = "gpg.* 2.0.*"
   protected override final val AddKeyCommand = "not-supported"
-  protected override final val ExportSubKeyCommand = "--export-secret-subkeys"
+  protected override final val ExportSubkeyCommand = "--export-secret-subkeys"
   protected override final val GenerateKeyCommand = "--gen-key"
   protected override final val ImportKeyCommand = "--import"
   protected override final val ListKeysCommand = "--list-keys"

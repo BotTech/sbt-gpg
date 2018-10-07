@@ -27,9 +27,9 @@ TaskKey[Unit]("check") := {
       (fingerprint, keys)
     }
   }.value
-  val secondSignSubKey = keys(1).subKeys(1)
-  require(secondSignSubKey.keyLength === gpgKeyLength.value)
-  require(secondSignSubKey.algorithm === 1)
-  require(secondSignSubKey.capabilities === Set(Sign))
-  require(secondSignSubKey.fingerprint === fingerprint)
+  val secondSignSubkey = keys(1).subkeys(1)
+  require(secondSignSubkey.keyLength === gpgKeyLength.value)
+  require(secondSignSubkey.algorithm === 1)
+  require(secondSignSubkey.capabilities === Set(Sign))
+  require(secondSignSubkey.fingerprint === fingerprint)
 }

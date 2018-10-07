@@ -116,23 +116,23 @@ object GpgTasks {
 
   def addKeyParametersTask: Def.Initialize[Task[Seq[String]]] = Def.task {
     val fpr = (gpgKeyFingerprint ?? "default").value
-    val keyType = gpgKeyType.value
+    val keyType = gpgSubkeyType.value
     val algo = if (keyType.isEmpty) {
       "default"
     } else {
-      keyType + gpgKeyLength.value
+      keyType + gpgSubkeyLength.value
     }
-    val keyUsage = gpgKeyUsage.value
+    val keyUsage = gpgSubkeyUsage.value
     val usage = if (keyUsage.isEmpty) {
       "default"
     } else {
-      gpgKeyUsage.value.mkString(",")
+      gpgSubkeyUsage.value.mkString(",")
     }
     Seq(fpr, algo, usage, gpgExpireDate.value)
   }
 
-  def exportSubKeyTask: Def.Initialize[Task[File]] = Def.task {
-    runCommandTask(GpgVersion.commands(_).exportSubKey).value
+  def exportSubkeyTask: Def.Initialize[Task[File]] = Def.task {
+    runCommandTask(GpgVersion.commands(_).exportSubkey).value
     gpgKeyFile.value
   }
 

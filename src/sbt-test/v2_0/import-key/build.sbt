@@ -22,9 +22,9 @@ TaskKey[Unit]("check") := {
       gpgListKeys.value
     }
   }.value
-  val secondSignSubKey = keys(1).subKeys(1)
-  require(secondSignSubKey.keyLength === gpgKeyLength.value)
-  require(secondSignSubKey.algorithm === 1)
-  require(secondSignSubKey.capabilities === Set(Sign))
-  require(secondSignSubKey.fingerprint === "AD295FC19241C3DD64FAC0BF4AB52BD1D2AAB2AD")
+  val secondSignSubkey = keys(1).subkeys(1)
+  require(secondSignSubkey.keyLength === gpgKeyLength.value)
+  require(secondSignSubkey.algorithm === 1)
+  require(secondSignSubkey.capabilities === Set(Sign))
+  require(secondSignSubkey.fingerprint === "AD295FC19241C3DD64FAC0BF4AB52BD1D2AAB2AD")
 }

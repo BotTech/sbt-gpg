@@ -4,7 +4,7 @@ import java.time.Instant
 
 import nz.co.bottech.sbt.gpg.GpgListingParser.{Capability, ComplianceFlag, Validity}
 
-final case class GpgSubKeyInfo(validity: Validity,
+final case class GpgSubkeyInfo(validity: Validity,
                                keyLength: Int,
                                algorithm: Int,
                                keyID: String,

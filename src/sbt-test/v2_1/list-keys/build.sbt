@@ -18,7 +18,7 @@ TaskKey[Unit]("check") := {
     "Alice <alice@example.com>",
     ""
   )
-  val firstEncryptSubKey = GpgSubKeyInfo(
+  val firstEncryptSubkey = GpgSubkeyInfo(
     Validity.UlimatelyValid,
     4096,
     1,
@@ -33,7 +33,7 @@ TaskKey[Unit]("check") := {
     "30CB506F8E82BC16A172355284F51E9BF1A32455",
     "0206243F9D91A60F9DC6BF7F831C194BA7BF3747"
   )
-  val firstSignSubKey = GpgSubKeyInfo(
+  val firstSignSubkey = GpgSubkeyInfo(
     Validity.UlimatelyValid,
     3072,
     17,
@@ -70,7 +70,7 @@ TaskKey[Unit]("check") := {
     "47FDA829C0E78FDADB7C4FB7968E1E13982F6604",
     "E8C0F666509ED6077747730B3E85D6F4A9786200",
     alice,
-    Seq(firstEncryptSubKey, firstSignSubKey)
+    Seq(firstEncryptSubkey, firstSignSubkey)
   )
   require(keys(0) === firstKey)
   val bobette = GpgUserID(
@@ -80,7 +80,7 @@ TaskKey[Unit]("check") := {
     "Bobette <bob@gmail.com>",
     ""
   )
-  val secondEncryptSubKey = GpgSubKeyInfo(
+  val secondEncryptSubkey = GpgSubkeyInfo(
     Validity.UlimatelyValid,
     3072,
     1,
@@ -111,7 +111,7 @@ TaskKey[Unit]("check") := {
     "298686B3B7CFE03D307F3D39D84FFA353EFAA96B",
     "515BE0F0CF13DAA3D66A0E25B78DBDA270D1110F",
     bobette,
-    Seq(secondEncryptSubKey)
+    Seq(secondEncryptSubkey)
   )
   require(keys(1) === secondKey)
 }

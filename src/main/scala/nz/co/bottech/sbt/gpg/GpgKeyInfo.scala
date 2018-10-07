@@ -24,7 +24,7 @@ final case class GpgKeyInfo(validity: Validity,
                             fingerprint: String,
                             keyGrip: String,
                             userID: GpgUserID,
-                            subKeys: Seq[GpgSubKeyInfo])
+                            subkeys: Seq[GpgSubkeyInfo])
 
 object GpgKeyInfo {
 
@@ -52,7 +52,7 @@ object GpgKeyInfo {
                                        fpr: Option[Listing],
                                        grp: Option[Listing],
                                        uid: Option[Listing],
-                                       subs: Vector[Try[GpgSubKeyInfo]]) {
+                                       subs: Vector[Try[GpgSubkeyInfo]]) {
 
     def keyInfo: Try[GpgKeyInfo] = {
       for {
@@ -66,7 +66,7 @@ object GpgKeyInfo {
         fingerprint <- tryStringField(fprListing.userID, "Fingerprint listing was missing the user ID field.")
         keyGrip <- tryKeyGrip(grp)
         userID <- tryUserID(uid)
-        subKeys <- trySubKeys(subs)
+        subkeys <- trySubkeys(subs)
       } yield GpgKeyInfo(
         validity,
         keyLength,
@@ -83,13 +83,13 @@ object GpgKeyInfo {
         fingerprint,
         keyGrip,
         userID,
-        subKeys
+        subkeys
       )
     }
 
-    private def trySubKeys(subKeys: Seq[Try[GpgSubKeyInfo]]): Try[Seq[GpgSubKeyInfo]] = {
-      subKeys.foldLeft[Try[Seq[GpgSubKeyInfo]]](Success(Vector.empty)) {
-        case (Success(acc), Success(subKey)) => Success(acc :+ subKey)
+    private def trySubkeys(subkeys: Seq[Try[GpgSubkeyInfo]]): Try[Seq[GpgSubkeyInfo]] = {
+      subkeys.foldLeft[Try[Seq[GpgSubkeyInfo]]](Success(Vector.empty)) {
+        case (Success(acc), Success(subkey)) => Success(acc :+ subkey)
         case (_, Failure(ex)) => Failure(ex)
         case (Failure(ex), _) => Failure(ex)
       }
@@ -114,7 +114,7 @@ object GpgKeyInfo {
 
   private final case class SubKeyListings(sub: Listing, fpr: Option[Listing], grp: Option[Listing]) {
 
-    def subKeyInfo: Try[GpgSubKeyInfo] = {
+    def subkeyInfo: Try[GpgSubkeyInfo] = {
       for {
         validity <- tryMaybeField(sub.validity, "Subkey listing was missing the validity field.")
         keyLength <- tryMaybeField(sub.length, "Subkey listing was missing the key length field.")
@@ -124,7 +124,7 @@ object GpgKeyInfo {
         fprListing <- tryMaybeField(fpr, "Fingerprint listing was missing.")
         fingerprint <- tryStringField(fprListing.userID, "Fingerprint listing was missing the user ID field.")
         keyGrip <- tryKeyGrip(grp)
-      } yield GpgSubKeyInfo(
+      } yield GpgSubkeyInfo(
         validity,
         keyLength,
         algorithm,
@@ -194,9 +194,9 @@ object GpgKeyInfo {
 
   private def groupSubKey(listings: Seq[Listing],
                           keyListings: SubKeyListings,
-                          log: Logger): (Try[GpgSubKeyInfo], Seq[Listing]) = {
+                          log: Logger): (Try[GpgSubkeyInfo], Seq[Listing]) = {
     @tailrec
-    def loop(remaining: Seq[Listing], acc: SubKeyListings): (Try[GpgSubKeyInfo], Seq[Listing]) = {
+    def loop(remaining: Seq[Listing], acc: SubKeyListings): (Try[GpgSubkeyInfo], Seq[Listing]) = {
       remaining match {
         case Fingerprint(listing) +: tail =>
           val nextAcc = acc.copy(fpr = Some(addListing(listing, acc.fpr, log, "fingerprint")))
@@ -204,7 +204,7 @@ object GpgKeyInfo {
         case Keygrip(listing) +: tail =>
           val nextAcc = acc.copy(grp = Some(addListing(listing, acc.grp, log, "keygrip")))
           loop(tail, nextAcc)
-        case _ => (acc.subKeyInfo, remaining)
+        case _ => (acc.subkeyInfo, remaining)
       }
     }
 

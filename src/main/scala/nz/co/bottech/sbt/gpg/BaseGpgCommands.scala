@@ -16,7 +16,7 @@ trait BaseGpgCommands {
   protected val GpgCommand: String
   protected val GpgVersionRegex: String
   protected val AddKeyCommand: String
-  protected val ExportSubKeyCommand: String
+  protected val ExportSubkeyCommand: String
   protected val GenerateKeyCommand: String
   protected val ImportKeyCommand: String
   protected val ListKeysCommand: String
@@ -111,8 +111,8 @@ trait BaseGpgCommands {
     keyFingerprint
   }
 
-  def exportSubKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
-    logAndExecute("Exporting key", gpg, options, ExportSubKeyCommand, parameters, log)
+  def exportSubkey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+    logAndExecute("Exporting key", gpg, options, ExportSubkeyCommand, parameters, log)
   }
 
   def importKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {

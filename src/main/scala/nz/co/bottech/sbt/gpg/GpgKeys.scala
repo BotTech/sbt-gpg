@@ -11,7 +11,7 @@ trait GpgKeys {
   val gpgCommand = taskKey[String]("The GnuPGP gpg CLI command.")
   val gpgCommandAndVersion = taskKey[(String, GpgVersion)]("The GnuPGP gpg CLI command and version.")
   val gpgExpireDate = settingKey[String]("The expiration date for the key (and the subkey).")
-  val gpgExportSubKey = taskKey[File]("Exports a subkey without the primary secret key.")
+  val gpgExportSubkey = taskKey[File]("Exports a subkey without the primary secret key.")
   val gpgGenerateKey = taskKey[String]("Generates a new key pair.")
   val gpgHomeDir = settingKey[Option[File]]("The gpg home directory.")
   val gpgImportKey = taskKey[Unit]("Imports a key to the keyring.")

@@ -51,10 +51,10 @@ object GpgSettings {
         gpgParameters := addKeyParametersTask.value
       )
     ) ++
-    inTaskRef(gpgExportSubKey)(
-      Seq(gpgExportSubKey := exportSubKeyTask.value)
+    inTaskRef(gpgExportSubkey)(
+      Seq(gpgExportSubkey := exportSubkeyTask.value)
     ) ++
-    inTask(gpgExportSubKey)(
+    inTask(gpgExportSubkey)(
       Seq(
         gpgArguments := exportArgumentsTask.value,
         gpgParameters := Seq(mandatoryTask(gpgKeyFingerprint).value + "!")
