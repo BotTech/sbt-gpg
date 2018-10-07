@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import nz.co.bottech.sbt.gpg.GpgErrors.GpgUnknownVersionException
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import sbt.Keys._
-import sbt.{Def, _}
+import sbt._
 
 object GpgTasks {
 
@@ -167,16 +167,44 @@ object GpgTasks {
 
   def signatureFileTask = Def.task {
     val message = GpgSettings.mandatoryTask(gpgMessage).value
-    if (gpgArmor.value) {
-      file(s"${message.getPath}.asc")
-    } else {
-      file(s"${message.getPath}.sig")
-    }
+    GpgSigner.messageSignatureFile(message, gpgArmor.value)
   }
 
   def signTask: Def.Initialize[Task[File]] = Def.task {
     runCommandTask(GpgVersion.commands(_).sign).value
     GpgSettings.mandatoryTask(gpgSignatureFile).value
+  }
+
+  def signerTask: Def.Initialize[Task[File => File]] = Def.task {
+    val log = state.value.log
+    val gpg = gpgCommand.value
+    val version = gpgVersion.value
+    val passphraseFile = gpgPassphraseFile.value
+    val armor = gpgArmor.value
+    val keyFingerprint = GpgSettings.mandatoryTask(gpgKeyFingerprint).value
+    val args = gpgArguments.value
+    val additionalOptions = gpgAdditionalOptions.value
+    val options = args.flatMap(_.prepare()) ++ additionalOptions
+    GpgSigner.signer(gpg, version, passphraseFile, armor, keyFingerprint, options, log)
+  }
+
+  def signedArtifactsTask = Def.task {
+    val artifacts = packagedArtifacts.value
+    val armor = gpgArmor.value
+    val signer = gpgSigner.value
+    val signatureArtifact = if (armor) {
+      GpgSigner.asc _
+    } else {
+      GpgSigner.sig _
+    }
+    artifacts.flatMap {
+      case (art, file) =>
+        val signature = signer(file)
+        Seq(
+          art -> file,
+          signatureArtifact(signature.getName, art) -> signature
+        )
+    }
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A

@@ -75,6 +75,12 @@ object GpgSettings {
         gpgParameters := Seq(mandatoryTask(gpgMessage).value.getPath),
         gpgSignatureFile := signatureFileTask.value
       )
+    ) ++
+    inTaskRef(gpgSigner)(
+      Seq(gpgSigner := signerTask.value)
+    ) ++
+    inTaskRef(gpgSignedArtifacts)(
+      Seq(gpgSignedArtifacts := signedArtifactsTask.value)
     )
 
   def inTaskRef(t: Scoped)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {

@@ -30,6 +30,8 @@ trait GpgKeys {
   val gpgPassphraseFile = taskKey[Option[File]]("Passphrase file for the secret key.")
   val gpgSelectPassphrase = taskKey[Option[String]]("Selects the passphrase for the secret key either from gpgPassphrase or the ~/.sbt/.credentials file.")
   val gpgSign = taskKey[File]("Sign a message.")
+  val gpgSignedArtifacts = taskKey[Map[Artifact, File]]("Packages all artifacts for publishing, signs them, and then maps the Artifact definition to the generated file.")
+  val gpgSigner = taskKey[File => File]("Signs messages.")
   val gpgSignatureFile = taskKey[File]("The signature file.")
   val gpgStatusFileDescriptor = settingKey[Int]("The file descriptor for writing status messages.")
   val gpgSubkeyLength = settingKey[Int]("The length of the generated subkey in bits.")
