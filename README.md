@@ -11,11 +11,18 @@ An sbt plugin to sign artifacts using the [GNU Privacy Guard][GnuPG] (GnuPG).
 | 2.1           | Does not support the `gpgAddKey` task |
 | 2.2           | All |
 
-## Usage
+## Setup
 
 This plugin requires sbt 1.0.0+.
 
 To use the plugin you must first [download][GnuPG Download] and install GnuPG.
+
+Add this plugin to your `project/plugins.sbt` file:
+```scala
+addSbtPlugin("nz.co.bottech" % "sbt-gpg" % "1.0.0")
+```
+
+## Usage
 
 The common scenario for using this plugin is:
 1. Generate a master key (unless you already have one).
