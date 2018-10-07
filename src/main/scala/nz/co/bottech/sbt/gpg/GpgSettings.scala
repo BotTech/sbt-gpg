@@ -14,21 +14,18 @@ object GpgSettings {
     gpgCommand := gpgCommandAndVersion.value._1,
     gpgCommandAndVersion := gpgCommandAndVersionTask.value,
     gpgExpireDate := "0",
-    gpgHomeDir := None,
-    gpgKeyFile := target.value / ".gnupg" / "key.asc",
     gpgKeyLength := 4096,
     gpgKeyType := "RSA",
     gpgKeyUsage := Set(),
-    gpgNameReal := "",
-    gpgNameEmail := "",
+    gpgHomeDir := None,
+    gpgKeyFile := target.value / ".gnupg" / "key.asc",
     gpgParameters := Seq.empty,
-    gpgParametersFile := gpgParametersFileTask.value,
     gpgPassphrase := None,
     gpgPassphraseFile := gpgPassphraseFileTask.value,
     gpgSelectPassphrase := gpgSelectPassphraseTask.value,
     gpgStatusFileDescriptor := 1,
     gpgSubkeyLength := gpgKeyLength.value,
-    gpgSubkeyType := "RSA",
+    gpgSubkeyType := gpgKeyType.value,
     gpgSubkeyUsage := Set(GpgKeyUsage.sign),
     gpgVersion := gpgCommandAndVersion.value._2
   ) ++
@@ -36,7 +33,10 @@ object GpgSettings {
       Seq(gpgGenerateKey := generateKeyTask.value)
     ) ++
     inTask(gpgGenerateKey)(
-      Seq(gpgParameters := Seq(gpgParametersFile.value.getPath))
+      Seq(
+        gpgParameters := Seq(gpgParametersFile.value.getPath),
+        gpgParametersFile := gpgParametersFileTask.value
+      )
     ) ++
     inTaskRef(gpgListKeys)(
       Seq(gpgListKeys := listKeysTask.value)
@@ -71,7 +71,8 @@ object GpgSettings {
     inTask(gpgSign)(
       Seq(
         gpgArguments := signArgumentsTask.value,
-        gpgParameters := Seq(mandatoryTask(gpgMessage).value.getPath)
+        gpgParameters := Seq(mandatoryTask(gpgMessage).value.getPath),
+        gpgSignatureFile := signatureFileTask.value
       )
     )
 
@@ -81,10 +82,6 @@ object GpgSettings {
 
   def inScopeRef(scope: Scope)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {
     Project.transformRef(Scope.replaceThis(scope), ss)
-  }
-
-  def mandatorySetting[A](setting: SettingKey[A]) = {
-    setting ?? (throw new RuntimeException(s"${setting.key.label} must be set."))
   }
 
   def mandatoryTask[A](task: TaskKey[A]): Def.Initialize[Task[A]] = {

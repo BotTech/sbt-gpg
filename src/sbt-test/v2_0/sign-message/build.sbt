@@ -4,7 +4,7 @@ gpgPassphrase := Some("password123")
 
 inTask(gpgSign) {
   Seq(
-    gpgKeyFingerprint := "66CA2BF946D1863DF30E98407102E744704372FE",
+    gpgKeyFingerprint := "1F5B17A1D9EEB0F9221704A58D1C95A18943856B",
     gpgPassphraseFile := Some {
       val f = gpgPassphraseFile.value.get
       file("/") / "root" / ".gnupg" / f.getName

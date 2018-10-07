@@ -105,9 +105,9 @@ trait BaseGpgCommands {
   }
 
   def addKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): String = {
-    val lines = logAndExecute("Adding key", gpg, options, AddKeyCommand, parameters, log)
+    val lines = logAndExecute("Adding subkey", gpg, options, AddKeyCommand, parameters, log)
     val keyFingerprint = parseKeyCreatedFingerprint(lines)
-    log.info(s"Generated your new master key: $keyFingerprint")
+    log.info(s"Added a new subkey: $keyFingerprint")
     keyFingerprint
   }
 

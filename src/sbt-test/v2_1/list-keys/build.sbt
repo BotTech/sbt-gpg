@@ -13,7 +13,7 @@ TaskKey[Unit]("check") := {
   require(keys.size === 2)
   val alice = GpgUserID(
     Validity.UlimatelyValid,
-    Instant.ofEpochMilli(1538299937),
+    Instant.ofEpochMilli(1538650227),
     "AD66BA4CCE5C5EE636FAD1BE2B9A0DB88903021E",
     "Alice <alice@example.com>",
     ""
@@ -22,38 +22,38 @@ TaskKey[Unit]("check") := {
     Validity.UlimatelyValid,
     4096,
     1,
-    "282A23DC16F896B9",
-    Instant.ofEpochMilli(1538299937),
+    "84F51E9BF1A32455",
+    Instant.ofEpochMilli(1538650227),
     None,
     Set(Encrypt),
     "+",
     Set.empty,
     "",
     "",
-    "AE1EFB7C13015FDC250F1CD5282A23DC16F896B9",
-    "7EAB267DBB845913ABFA2A6B806400F3E15CA5DD"
+    "30CB506F8E82BC16A172355284F51E9BF1A32455",
+    "0206243F9D91A60F9DC6BF7F831C194BA7BF3747"
   )
   val firstSignSubKey = GpgSubKeyInfo(
     Validity.UlimatelyValid,
     3072,
     17,
-    "45CEDE1CDF3D80C6",
-    Instant.ofEpochMilli(1538300077),
-    Some(Instant.ofEpochMilli(1569836077)),
+    "45D39C04A5481116",
+    Instant.ofEpochMilli(1538650424),
+    Some(Instant.ofEpochMilli(1541242424)),
     Set(Sign),
     "+",
     Set.empty,
     "",
     "",
-    "89B28FF77D2AD4D5A704896745CEDE1CDF3D80C6",
-    "ADBEB85D025EC0853D799715663AE42D564C7917"
+    "77F56521010ACE05AB9184A345D39C04A5481116",
+    "4B30991110A918FAC9688D315BC3312CDB200163"
   )
   val firstKey = GpgKeyInfo(
     Validity.UlimatelyValid,
     4096,
     1,
-    "FE8BBF5E2D69BB71",
-    Instant.ofEpochMilli(1538299937),
+    "968E1E13982F6604",
+    Instant.ofEpochMilli(1538650227),
     None,
     "u",
     Set(
@@ -67,15 +67,15 @@ TaskKey[Unit]("check") := {
     Set.empty,
     "",
     "",
-    "FAAF8CA0F77452712D468730FE8BBF5E2D69BB71",
-    "12DE8B1311390B60FCB1B1FB34EF4831A0699059",
+    "47FDA829C0E78FDADB7C4FB7968E1E13982F6604",
+    "E8C0F666509ED6077747730B3E85D6F4A9786200",
     alice,
     Seq(firstEncryptSubKey, firstSignSubKey)
   )
   require(keys(0) === firstKey)
   val bobette = GpgUserID(
     Validity.UlimatelyValid,
-    Instant.ofEpochMilli(1538300341),
+    Instant.ofEpochMilli(1538650526),
     "C595E1BBEAF34E53A50CC3A808C266A3DECA6A77",
     "Bobette <bob@gmail.com>",
     ""
@@ -84,32 +84,32 @@ TaskKey[Unit]("check") := {
     Validity.UlimatelyValid,
     3072,
     1,
-    "94CC94C6B2059D2F",
-    Instant.ofEpochMilli(1538300341),
-    Some(Instant.ofEpochMilli(1569836341)),
+    "D9590422EEA48955",
+    Instant.ofEpochMilli(1538650526),
+    Some(Instant.ofEpochMilli(1541242526)),
     Set(Encrypt),
     "+",
     Set.empty,
     "",
     "",
-    "426497E0A89864CD2B0E83B394CC94C6B2059D2F",
-    "6B7C1DB6437C404FB64C9B5C77357229C63B80D2"
+    "D280CAFCE49A316AB1E44F0FD9590422EEA48955",
+    "8B2C23DB534D4400D16412D9E5703D59EF21F782"
   )
   val secondKey = GpgKeyInfo(
     Validity.UlimatelyValid,
     3072,
     1,
-    "289E3A8C38A903A0",
-    Instant.ofEpochMilli(1538300341),
-    Some(Instant.ofEpochMilli(1569836341)),
+    "D84FFA353EFAA96B",
+    Instant.ofEpochMilli(1538650526),
+    Some(Instant.ofEpochMilli(1541242526)),
     "u",
     Set(Sign, Certify, PrimaryEncrypt, PrimarySign, PrimaryCertify),
     "+",
     Set.empty,
     "",
     "",
-    "94828235C86AB40CC43BD07F289E3A8C38A903A0",
-    "5C9689C82556D6F6F846A265A096F9DE7BCB1069",
+    "298686B3B7CFE03D307F3D39D84FFA353EFAA96B",
+    "515BE0F0CF13DAA3D66A0E25B78DBDA270D1110F",
     bobette,
     Seq(secondEncryptSubKey)
   )

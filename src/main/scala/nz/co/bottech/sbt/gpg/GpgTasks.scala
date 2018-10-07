@@ -53,8 +53,8 @@ object GpgTasks {
 
   private def gpgNameTask = Def.task {
     val name = GpgName(
-      real = gpgNameReal.value,
-      email = gpgNameEmail.value
+      real = GpgSettings.mandatoryTask(gpgNameReal).value,
+      email = GpgSettings.mandatoryTask(gpgNameEmail).value
     )
     require(name.real.trim.nonEmpty, "gpgNameReal must not be empty.")
     require(name.email.trim.nonEmpty, "gpgNameEmail must not be empty.")
@@ -153,10 +153,25 @@ object GpgTasks {
   }
 
   def signArgumentsTask: Def.Initialize[Task[Seq[GpgArgument]]] = Def.task {
+    val armor = if (gpgArmor.value) {
+      Seq(GpgFlag.armor)
+    } else {
+      Seq.empty[GpgArgument]
+    }
     gpgArguments.value ++
-      passphraseArgumentsTask.value :+
+      passphraseArgumentsTask.value ++
+      armor :+
       GpgOption.localUser(GpgSettings.mandatoryTask(gpgKeyFingerprint).value) :+
       GpgOption.output(GpgSettings.mandatoryTask(gpgSignatureFile).value)
+  }
+
+  def signatureFileTask = Def.task {
+    val message = gpgMessage.value
+    if (gpgArmor.value) {
+      file(s"${message.getPath}.asc")
+    } else {
+      file(s"${message.getPath}.sig")
+    }
   }
 
   def signTask: Def.Initialize[Task[File]] = Def.task {
