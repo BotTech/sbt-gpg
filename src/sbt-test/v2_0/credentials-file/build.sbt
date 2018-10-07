@@ -8,6 +8,7 @@ inTask(gpgGenerateKey) {
   Seq(
     gpgNameReal := "Jim Bob",
     gpgNameEmail := "jim.bob@example.com",
+    gpgSelectPassphrase := GpgTasks.gpgSelectPassphraseTask.value,
     gpgParametersFile := {
       file("/") / "root" / ".gnupg" / gpgParametersFile.value.getName
     }
