@@ -1,186 +1,177 @@
 # sbt-gpg
 
-[![Build Status][Build Status]](https://travis-ci.org/BotTech/sbt-gpg)
-[![Download][Download]](https://bintray.com/bottech/sbt-plugins/sbt-gpg/_latestVersion)
+[![Build Status]](https://travis-ci.org/BotTech/sbt-gpg)
+[![Download]](https://bintray.com/bottech/sbt-plugins/sbt-gpg/_latestVersion)
 
-An sbt plugin to sign artifacts using the GNU Privacy Guard.
+An sbt plugin to sign artifacts using the [GNU Privacy Guard][GnuPG] (GnuPG).
+
+| GnuPG Version | Tasks |
+| ------------- | ----- |
+| 2.0           | Does not support the `gpgAddKey` task |
+| 2.1           | Does not support the `gpgAddKey` task |
+| 2.2           | All |
 
 ## Usage
 
 This plugin requires sbt 1.0.0+.
 
-### Testing
+To use the plugin you must first [download][GnuPG Download] and install GnuPG.
 
-Run `test` for regular unit tests.
+The common scenario for using this plugin is:
+1. Generate a master key (unless you already have one).
+1. Add a new subkey for your project.
+1. Export the subkey.
+1. Encrypt the subkey and commit it to the project repository.
+1. During the automated build, decrypt and then import the subkey.
+1. Build the project artifacts and sign them.
 
-Run `scripted` for [sbt script tests][Testing Plugins].
-
-### Versioning
-
-Version numbers are determined automatically using [sbt-dynver][sbt-dynver].
-
-To create a new version add a new git annotated tag:
-```bash
-git tag -a v1.1.0
-```
-
-### Continuous Integration
-
-Continuous integration builds are done with Travis CI.
-
-Head over to your [organization profile][Travis Profile] and enable the build on this project. You may need to sync the
-account if the project does not appear in the list.
-
-### Publishing
-
-The Travis CI build will automatically publish to Bintray and GitHub for all tagged commits on master.
-
-#### Signed Artifacts
-
-This uses [sbt-pgp][sbt-pgp] to sign the packaged artifacts.
-
-##### Create the GPG Key
-
-Follow the instructions on [creating a key pair][Create GPG Key] with the sbt-pgp plugin.
-
+The referenced settings from all the main tasks have been scoped to that task to make it easier to override just the
+ones that you care about without impacting other tasks. For example:
 ```sbtshell
-set pgpReadOnly := false
-pgp-cmd gen-key
+gpgExportSubkey / gpgHomeDir := file("~/.gnupg")
+gpgImportKey / gpgHomeDir := target.value / ".gnupg"
 ```
 
-##### Travis GitHub Token
+Use `inspect` to see what the scope of various settings are. See [sbt - Inspecting the Build] for more details.
 
-We will use the Travis CLI to encrypt all the secrets to be used in the build.
+### GnuPG Home Directory
 
-Go to GitHub and create a Personal access token with the following scopes:
-* `user:email`
-* `read:org`
-* `repo_deployment`
-* `repo:status`
-* `write:repo_hook`
+All tasks can use a specific home directory for GnuPG by setting `gpgHomeDir`.
 
-See [Travis CI for open source projects][Travis OSS] on what these scopes are used for.
+If this is not set (or set to `None`) then GnuPG will use the default home directory `~/.gnupg`.
 
-Save the token somewhere safe as you will need it to login to the Travis CLI and if you forget it you will need to
-generate a new one.
+### Passphrase
 
-##### Encrypt the GPG Secret Key
+The following will be used to determine the passphrase:
+1. `gpgPassphrase` setting.
+1. `credentials` task.
+1. pinentry.
 
-Next encrypt the GPG secret key using the instructions on [encrypting files][Travis Encrypting Files].
+If you are just running the tasks from an interactive sbt session then it is best to not specify the passphrase in sbt
+or a credentials file and instead let GnuPG prompt you for it using pinentry.
 
-Install the Travis CLI:
-```bash
-gem install travis
-```
+If you need to run a task from a non-interactive session, such as during an automated build, then it is best to use the
+`credentials` task. See [sbt - Credentials] for more details. The `host` must be `gpg`. The `realm` and `user` are not
+used. Make sure to secure any credentials file appropriately.
 
-Login using the GitHub Token:
-```bash
-travis login -g YOUR_GITHUB_TOKEN
-```
+### Generate Key
 
-Encrypt the secret key:
-```bash
-travis encrypt-file travis/secring.asc
-```
+`gpgGenerateKey` - Generates a new key pair.
 
-Add the output to the `env.global` section of the `.travis.yml` file.
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgNameReal` | The name to use in the key. | &#X2714; |  |
+| `gpgNameEmail` | The email to to use in the key. | &#X2714; |  |
+| `gpgKeyLength` | The length of the generated key in bits. | &#X2718; | 4096 |
+| `gpgKeyType` | The OpenPGP algorithm number or name to use for the key. | &#X2718; | RSA |
+| `gpgKeyUsage` | The list of key usages. | &#X2718; | `Set()` (will use GnuPG default) |
+| `gpgSubkeyLength` | The length of the generated subkey in bits. | &#X2718; | 4096 |
+| `gpgSubkeyType` | The OpenPGP algorithm number or name to use for the subkey. | &#X2718; | RSA |
+| `gpgSubkeyUsage` | The list of subkey usages. | &#X2718; | sign |
+| `gpgExpireDate` | The expiration date for the key (and the subkey). | &#X2718; | 0 (does not expire) |
 
-Move the encrypted secret key:
-```bash
-mv secring.asc.enc travis/
-```
+Comments are not encouraged and are therefore not provided as an option.
 
-Delete the unencrypted secret key:
-```bash
-rm travis/secring.asc
-```
+WARNING - If you set `gpgGenerateKey / gpgSelectPassphrase` then this will end up in the generated `gpgParametersFile`.
+You should take care to secure this file and delete it when it is no longer needed (e.g. `clean`).
 
-Now encrypt the GPG passphrase using the instructions on [encryption keys][Travis Encryption Keys].
-```bash
-travis encrypt
-PGP_PASS=YOUR_PGP_PASSPHRASE
-```
+### List Keys
 
-Add the output to the `env.global` section of the `.travis.yml` file.
+`gpgListKeys` - List the existing keys.
 
-#### Bintray
+### Add Key
 
-This uses [sbt-bintray][sbt-bintray] to publish artifacts to Bintray.
+`gpgAddKey` - Adds a subkey to an existing key.
 
-Create an [OSS Bintray account][Bintray OSS Signup].
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the master key. | &#X2718; | default |
+| `gpgSubkeyLength` | The length of the generated subkey in bits. | &#X2718; | 4096 |
+| `gpgSubkeyType` | The OpenPGP algorithm number or name to use for the subkey. | &#X2718; | RSA |
+| `gpgSubkeyUsage` | The list of subkey usages. | &#X2718; | sign |
 
-Add a new repository:
-* Public
-* Name: `sbt-plugins`
-* Type: `Generic`
+Use `gpgListKeys` to find the key fingerprint.
 
-##### Encrypt Bintray Credentials
+The best practice is to not keep your master private key on the key ring of the machine that you use but to instead use
+subkeys. You can read a good introduction to this on [Debian Wiki - Subkeys].
 
-Go to your profile on [Bintray][Bintray] and copy your API key and encrypt it.
-```bash
-travis encrypt
-BINTRAY_PASS=YOUR_PGP_PASSPHRASE
-```
+### Export Key
 
-Add the output to the `env.global` section of the `.travis.yml` file.
-Also add your Bintray user name to the `BINTRAY_USER` environment variable.
+`gpgExportSubkey` - Exports a subkey without the primary secret key.
 
-#### GitHub OAuth Token
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgArmor` | Create ASCII armored output. | &#X2718; | true |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the subkey. | &#X2714; |  |
+| `gpgKeyFile` | The output key file. | &#X2714; |  |
 
-[ohnosequences/sbt-github-release][sbt-github-release] is used to publish the artifacts to GitHub.
+### Import Key
 
-Generate a separate GitHub token for use in the build which has the following scopes:
-* `public_repo`
+`gpgImportKey` - Imports a key to the keyring.
 
-See [Authenticating with an OAuth token][Travis OAuth] for the details.
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgKeyFile` | The input key file. | &#X2714; |  |
 
-Now encrypt the token:
-```bash
-travis encrypt
-GITHUB_TOKEN=YOUR_GITHUB_TOKEN
-```
+### Sign Message
 
-Add the output to the `env.global` section of the `.travis.yml` file.
+`gpgSign` - Sign a message.
 
-#### Promote Your Plugin
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgArmor` | Create ASCII armored output. | &#X2718; | true |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the key with signing capabilities. | &#X2714; |  |
+| `gpgMessage` | The message to sign. | &#X2714; |  |
+| `gpgSignatureFile` | The output signature file. | &#X2714; |  |
 
-1. Include your plugin in the [community sbt repository][Community Repo].
-1. Add your plugin to the [community plugins list][Community Plugins].
-1. Add your plugin to the [Awesome Scala][Awesome Scala] list.
-1. [Claim your project][Scaladex] in the Scaladex.
+### Signed Artifacts
+
+`gpgSignedArtifacts` - Packages all artifacts for publishing, signs them, and then maps the Artifact definition to the
+generated file.
+
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgArmor` | Create ASCII armored output. | &#X2718; | true |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the key with signing capabilities. | &#X2714; |  |
+
+Note that these should be scoped to the `gpgSigner` task.
+
+## Examples
+
+There are a bunch of examples in the [sbt tests](src/sbt-test).
+
+## Travis CI
+
+TODO.
 
 ## Credits
 
 This plugin was generated from the [BotTech/sbt-autoplugin.g8][sbt-autoplugin] Giter8 template.
 
 Special thanks to:
-* [GitHub][Github] for hosting the git repository.
-* [Travis CI][Travis CI] for running the build.
-* [JFrog][JFrog] for distributing the releases on Bintray.
-* [Lightbend][Lightbend] for distributing the plugin in the community sbt repository.
+* [Docker] for providing the containerization.
+* [GitHub] for hosting the git repository.
+* [GnuPG] for providing a free implementation of the OpenPGP standard.
+* [JFrog] for distributing the releases on Bintray.
+* [Lightbend] for [Scala], [sbt] and distributing the plugin in the community sbt repository.
+* [scalacenter] for [Scala] and indexing this project in the [Scaladex].
+* [Travis CI] for running the build.
 * All the other OSS contributors who made this project possible.
 
-[Awesome Scala]: https://github.com/lauris/awesome-scala
-[Bintray]: https://bintray.com
-[Bintray OSS Signup]: https://bintray.com/signup/oss
-[Build Status]: https://travis-ci.org/BotTech/sbt-gpg.svg?branch=master
-[Community Plugins]: https://github.com/sbt/website#attention-plugin-authors
-[Community Repo]: https://www.scala-sbt.org/1.x/docs/Bintray-For-Plugins.html#Linking+your+package+to+the+sbt+organization
-[Create GPG Key]: https://www.scala-sbt.org/sbt-pgp/usage.html
-[Download]: https://api.bintray.com/packages/bottech/sbt-plugins/sbt-gpg/images/download.svg
+[Build Status]: https://travis-ci.org/$organizationName;format="word"$/$name$.svg?branch=master
+[Debian Wiki - Subkeys]: https://wiki.debian.org/Subkeys
+[Docker]: https://www.docker.com
+[Download]: https://api.bintray.com/packages/$organizationName;format="word,lower"$/sbt-plugins/$name$/images/download.svg
 [Github]: https://github.com
+[GnuPG]: https://www.gnupg.org/index.html
+[GnuPG Download]: https://www.gnupg.org/download/index.html
 [JFrog]: https://jfrog.com
 [Lightbend]: https://www.lightbend.com
+[sbt]: https://www.scala-sbt.org
+[sbt - Credentials]: https://www.scala-sbt.org/1.x/docs/Publishing.html#Credentials
+[sbt - Inspecting the Build]: https://www.scala-sbt.org/1.x/docs/Howto-Inspect-the-Build.html
 [sbt-autoplugin]: https://github.com/BotTech/sbt-autoplugin.g8
-[sbt-bintray]: https://github.com/sbt/sbt-bintray
-[sbt-dynver]: https://github.com/dwijnand/sbt-dynver
-[sbt-github-release]: https://github.com/ohnosequences/sbt-github-release
-[sbt-pgp]: https://github.com/sbt/sbt-pgp
-[Scaladex]: https://github.com/scalacenter/scaladex-contrib#claim-your-project
-[Testing Plugins]: http://www.scala-sbt.org/1.x/docs/Testing-sbt-plugins.html
+[Scala]: https://www.scala-lang.org
+[scalacenter]: https://scala.epfl.ch
+[Scaladex]: https://index.scala-lang.org
 [Travis CI]: https://travis-ci.org
-[Travis Encrypting Files]: https://docs.travis-ci.com/user/encrypting-files
-[Travis Encryption Keys]: https://docs.travis-ci.com/user/encryption-keys
-[Travis OAuth]: https://docs.travis-ci.com/user/deployment/releases/#authenticating-with-an-oauth-token
-[Travis OSS]: https://docs.travis-ci.com/user/github-oauth-scopes/#travis-ci-for-open-source-projects
-[Travis Profile]: https://travis-ci.org/profile/BotTech
