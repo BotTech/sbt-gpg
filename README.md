@@ -25,7 +25,7 @@ addSbtPlugin("nz.co.bottech" % "sbt-gpg" % "1.0.0")
 ## Usage
 
 The common scenario for using this plugin is:
-1. Generate a master key (unless you already have one).
+1. Generate a primary key (unless you already have one).
 1. Add a new subkey for your project.
 1. Export the subkey.
 1. Encrypt the subkey and commit it to the project repository.
@@ -94,17 +94,27 @@ You should take care to secure this file and delete it when it is no longer need
 
 | Setting | Description | Required | Default |
 | ------- | ----------- | :------: | ------- |
-| `gpgKeyFingerprint` | The SHA-1 fingerprint of the master key. | &#X2718; | default |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the primary key. | &#X2718; | default |
 | `gpgSubkeyLength` | The length of the generated subkey in bits. | &#X2718; | 4096 |
 | `gpgSubkeyType` | The OpenPGP algorithm number or name to use for the subkey. | &#X2718; | RSA |
 | `gpgSubkeyUsage` | The list of subkey usages. | &#X2718; | sign |
 
 Use `gpgListKeys` to find the key fingerprint.
 
-The best practice is to not keep your master private key on the key ring of the machine that you use but to instead use
+The best practice is to not keep your primary private key on the key ring of the machine that you use but to instead use
 subkeys. You can read a good introduction to this on [Debian Wiki - Subkeys].
 
 ### Export Key
+
+`gpgExportKey` - Exports a key with the secret key.
+
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgArmor` | Create ASCII armored output. | &#X2718; | true |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the key. | &#X2714; |  |
+| `gpgKeyFile` | The output key file. | &#X2714; |  |
+
+### Export Subkey
 
 `gpgExportSubkey` - Exports a subkey without the primary secret key.
 
@@ -151,12 +161,12 @@ There are a bunch of examples in the [sbt tests](src/sbt-test).
 
 ## Travis CI
 
-### Generate a Master Key
+### Generate a Primary Key
 
-If you already have a master key and you are following the best practices then you should mount the device that contains
+If you already have a primary key and you are following the best practices then you should mount the device that contains
 the key now, then set `gpgHomeDir` to the GnuPG home directory on that device.
 
-If you do not already have a master key then you need to generate one.
+If you do not already have a primary key then you need to generate one.
 ```sbtshell
 set gpgNameReal := "Your (Organization) Name"
 set gpgNameEmail := "your@email.com"
@@ -165,13 +175,13 @@ gpgGenerateKey
 
 Pinentry should appear and ask you to enter passphrase.
 
-You should see the fingerprint of your new master key.
+You should see the fingerprint of your new primary key.
 ```sbtshell
-[info] Generated your new master key: 84C263516A75C26F1ADD723FC148D2D9D807D63F
+[info] Generated your new primary key: 84C263516A75C26F1ADD723FC148D2D9D807D63F
 ```
 
 By default it will have also generated a new subkey with signing capabilities.
-You should only use this key in your build and never use your master key.
+You should only use this key in your build and never use your primary key.
 
 ### Add a Subkey
 
@@ -182,9 +192,9 @@ set gpgAddKey/gpgKeyFingerprint := "84C263516A75C26F1ADD723FC148D2D9D807D63F"
 gpgAddKey
 ```
 
-Where `gpgKeyFingerprint` is the fingerprint of your master key.
+Where `gpgKeyFingerprint` is the fingerprint of your primary key.
 If you do not know the fingerprint then read [Find the Fingerprint](#find-the-fingerprint).
-Look for the row starting with `pub` which matches your master key.
+Look for the row starting with `pub` which matches your primary key.
 Underneath that is a row starting with `fpr`.
 The fingerprint is the hexadecimal value in that row.
 
@@ -207,7 +217,7 @@ Which will output something similar to:
 ```
 
 The fingerprint of a key is the hexadecimal value in the row starting with `fpr`.
-In this example there are two fingerprints, one for the master key `84C263516A75C26F1ADD723FC148D2D9D807D63F` and one
+In this example there are two fingerprints, one for the primary key `84C263516A75C26F1ADD723FC148D2D9D807D63F` and one
 for the subkey `8BD27F291CB15ABD0DEFA583674FFAE89237F93F`.
 
 ### Export the Subkey
@@ -228,7 +238,7 @@ show gpgKeyFile
 
 ### Change the Subkey passphrase
 
-The subkey that was exported in the previous step will have the same passphrase as the master key.
+The subkey that was exported in the previous step will have the same passphrase as the primary key.
 This is not ideal because we need to commit this passphrase (encrypted of course) to the build and so that increases
 the chances that it may get compromised. We need to change the passphrase so that in the worst case, only this subkey
 is compromised.

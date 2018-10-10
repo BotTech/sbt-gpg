@@ -4,7 +4,7 @@ gpgPassphrase := Some("password123")
 
 inTask(gpgExportSubkey) {
   Seq(
-    gpgKeyFingerprint := "426497E0A89864CD2B0E83B394CC94C6B2059D2F",
+    gpgKeyFingerprint := "D280CAFCE49A316AB1E44F0FD9590422EEA48955",
     gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
       file("/") / "root" / ".gnupg" / f.getName
     },

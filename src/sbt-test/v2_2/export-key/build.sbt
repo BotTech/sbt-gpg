@@ -2,9 +2,9 @@ scalaVersion := "2.12.6"
 
 gpgPassphrase := Some("password123")
 
-inTask(gpgExportSubkey) {
+inTask(gpgExportKey) {
   Seq(
-    gpgKeyFingerprint := "66CA2BF946D1863DF30E98407102E744704372FE",
+    gpgKeyFingerprint := "E6E48F840A1BCD2FA67F50E1815E51E2D58B34ED",
     gpgPassphraseFile := gpgPassphraseFile.value.map { f =>
       file("/") / "root" / ".gnupg" / f.getName
     },
@@ -13,5 +13,5 @@ inTask(gpgExportSubkey) {
 }
 
 TaskKey[Unit]("check") := {
-  gpgExportSubkey.value
+  gpgExportKey.value
 }

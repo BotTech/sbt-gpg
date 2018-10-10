@@ -2,7 +2,8 @@ package nz.co.bottech.sbt.gpg
 
 import java.nio.charset.StandardCharsets
 
-import nz.co.bottech.sbt.gpg.GpgErrors.GpgUnknownVersionException
+import nz.co.bottech.sbt.gpg.BaseGpgCommands.CommandOutput
+import nz.co.bottech.sbt.gpg.GpgErrors.{GpgMissingSecretKey, GpgUnknownVersionException}
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import sbt.Keys._
 import sbt._
@@ -13,6 +14,9 @@ object GpgTasks {
   // -1 for the null character.
   // -12 for the /S.gpg-agent suffix.
   final val MaxHomeDirLength = 104 - 1 - 12
+
+  // Workaround for https://github.com/sbt/sbt/issues/3110
+  final val Def = sbt.Def
 
   def gpgCommandAndVersionTask: Def.Initialize[Task[(String, GpgVersion)]] = Def.task {
     val log = state.value.log
@@ -131,6 +135,11 @@ object GpgTasks {
     Seq(fpr, algo, usage, gpgExpireDate.value)
   }
 
+  def exportKeyTask: Def.Initialize[Task[File]] = Def.task {
+    runCommandTask(GpgVersion.commands(_).exportKey).value
+    gpgKeyFile.value
+  }
+
   def exportSubkeyTask: Def.Initialize[Task[File]] = Def.task {
     runCommandTask(GpgVersion.commands(_).exportSubkey).value
     gpgKeyFile.value
@@ -205,6 +214,53 @@ object GpgTasks {
           signatureArtifact(signature.getName, art) -> signature
         )
     }
+  }
+
+  def editKeyTask: Def.Initialize[Task[CommandOutput]] = {
+    runCommandTask(GpgVersion.commands(_).editKey)
+  }
+
+  def changePassphraseParametersTask: Def.Initialize[Task[Seq[String]]] = Def.task {
+    val fpr = GpgSettings.mandatoryTask(gpgKeyFingerprint).value
+    Seq(fpr, "passwd", "quit")
+  }
+
+  def changeKeyPassphraseTask: Def.Initialize[Task[Unit]] = Def.taskDyn {
+    val message = "Cannot change the passphrase of a key without the primary secret key."
+    val keyFingerprint = GpgSettings.mandatoryTask(gpgKeyFingerprint).value
+    changePassphraseTask(checkEditKeyTask(message), GpgVersion.commands(_).exportKey, keyFingerprint)
+  }
+
+  def changeSubkeyPassphraseTask: Def.Initialize[Task[Unit]] = Def.taskDyn {
+    val message = "Cannot change the passphrase of a subkey without both the primary secret key and the subkey secret key."
+    val keyFingerprint = s"${GpgSettings.mandatoryTask(gpgKeyFingerprint).value}!"
+    changePassphraseTask(checkEditKeyTask(message), GpgVersion.commands(_).exportSubkey, keyFingerprint)
+  }
+
+  private def checkEditKeyTask(message: String) = Def.task {
+    val output = editKeyTask.value
+    if (output.err.exists(_.contains("Need the secret key to do this"))) {
+      throw GpgMissingSecretKey(message)
+    }
+  }
+
+  private def changePassphraseTask(changePassphrase: Def.Initialize[Task[Unit]],
+                                   exportCommand: GpgVersion => Command[Unit],
+                                   exportKeyFingerprintParam: String) = Def.taskDyn {
+    val log = state.value.log
+    val gpg = gpgCommand.value
+    val version = gpgVersion.value
+    val additionalOptions = gpgAdditionalOptions.value
+    val importTask = Def.task {
+      val keyFile = gpgKeyFile.value.getPath
+      GpgVersion.commands(version).importKey(gpg, additionalOptions, Seq(keyFile), log)
+    }
+    val exportTask = Def.task {
+      val exportArgs = exportArgumentsTask.value
+      val options = exportArgs.flatMap(_.prepare()) ++ additionalOptions
+      exportCommand(version)(gpg, options, Seq(exportKeyFingerprintParam), log)
+    }
+    Def.sequential(importTask, changePassphrase, exportTask).map(_ => ())
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A

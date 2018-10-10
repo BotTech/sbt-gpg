@@ -51,6 +51,15 @@ object GpgSettings {
         gpgParameters := addKeyParametersTask.value
       )
     ) ++
+    inTaskRef(gpgExportKey)(
+      Seq(gpgExportKey := exportKeyTask.value)
+    ) ++
+    inTask(gpgExportKey)(
+      Seq(
+        gpgArguments := exportArgumentsTask.value,
+        gpgParameters := Seq(mandatoryTask(gpgKeyFingerprint).value)
+      )
+    ) ++
     inTaskRef(gpgExportSubkey)(
       Seq(gpgExportSubkey := exportSubkeyTask.value)
     ) ++
@@ -84,6 +93,24 @@ object GpgSettings {
     ) ++
     inTask(gpgSignedArtifacts)(
       Seq(gpgArmor := (gpgSigner / gpgArmor).value)
+    ) ++
+    inTaskRef(gpgChangeKeyPassphrase)(
+      Seq(gpgChangeKeyPassphrase := changeKeyPassphraseTask.value)
+    ) ++
+    inTask(gpgChangeKeyPassphrase)(
+      Seq(
+        gpgArguments := gpgArguments.value,
+        gpgParameters := changePassphraseParametersTask.value
+      )
+    ) ++
+    inTaskRef(gpgChangeSubkeyPassphrase)(
+      Seq(gpgChangeSubkeyPassphrase := changeSubkeyPassphraseTask.value)
+    ) ++
+    inTask(gpgChangeSubkeyPassphrase)(
+      Seq(
+        gpgArguments := gpgArguments.value,
+        gpgParameters := changePassphraseParametersTask.value
+      )
     )
 
   def inTaskRef(t: Scoped)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {

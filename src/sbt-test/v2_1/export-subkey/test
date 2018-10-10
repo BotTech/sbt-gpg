@@ -1,3 +1,2 @@
 > check
 $ exists target/.gnupg/key.asc
-$pause
