@@ -10,4 +10,6 @@ object GpgErrors {
 
   final case class GpgMissingSecretKey(message: String) extends Exception(message)
 
+  final case class GpgErrorChangingPassphrase(message: String) extends Exception(message)
+
 }
