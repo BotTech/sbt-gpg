@@ -16,7 +16,7 @@ trait GpgKeys {
   val gpgExportKey = taskKey[File]("Exports a key with the primary secret key.")
   val gpgExportSubkey = taskKey[File]("Exports a subkey without the primary secret key.")
   val gpgGenerateKey = taskKey[String]("Generates a new key pair.")
-  val gpgHomeDir = settingKey[Option[File]]("The gpg home directory.")
+  val gpgHomeDir = taskKey[Option[File]]("The gpg home directory.")
   val gpgImportKey = taskKey[Unit]("Imports a key to the keyring.")
   val gpgKeyFile = settingKey[File]("The key file.")
   val gpgKeyFingerprint = taskKey[String]("The SHA-1 fingerprint of the key.")

@@ -99,7 +99,8 @@ object GpgSettings {
     ) ++
     inTask(gpgChangeKeyPassphrase)(
       Seq(
-        gpgArguments := gpgArguments.value,
+        gpgArguments := gpgArgumentsTask.value,
+        gpgHomeDir := Some(tempTargetDirTask.value),
         gpgParameters := changePassphraseParametersTask.value
       )
     ) ++
@@ -108,7 +109,8 @@ object GpgSettings {
     ) ++
     inTask(gpgChangeSubkeyPassphrase)(
       Seq(
-        gpgArguments := gpgArguments.value,
+        gpgArguments := gpgArgumentsTask.value,
+        gpgHomeDir := Some(tempTargetDirTask.value),
         gpgParameters := changePassphraseParametersTask.value
       )
     )

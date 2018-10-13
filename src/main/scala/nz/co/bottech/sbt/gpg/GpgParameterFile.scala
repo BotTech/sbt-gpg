@@ -3,9 +3,12 @@ package nz.co.bottech.sbt.gpg
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.nio.file.attribute.{PosixFilePermission, PosixFilePermissions}
+import java.nio.file.attribute.{FileAttribute, PosixFilePermission, PosixFilePermissions}
+import java.util
 
 import sbt.util.Logger
+
+import scala.collection.JavaConverters._
 
 final case class GpgKeyParameters(length: Int, typ: String, usage: Set[GpgKeyUsage])
 
@@ -24,7 +27,7 @@ object GpgParameterFile {
   }
 
   def create(parameters: GpgParameters, file: File, log: Logger): File = {
-    import parameters.{expire, key, name, passphrase, subkey}
+    import parameters._
     val lines = {
       keyLines(key, "Key") ++:
         keyLines(subkey, "Subkey") ++:

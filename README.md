@@ -54,7 +54,7 @@ If this is not set (or set to `None`) then GnuPG will use the default home direc
 The following will be used to determine the passphrase:
 1. `gpgPassphrase` setting.
 1. `credentials` task.
-1. pinentry.
+1. Pinentry.
 
 If you are just running the tasks from an interactive sbt session then it is best to not specify the passphrase in sbt
 or a credentials file and instead let GnuPG prompt you for it using pinentry.
@@ -132,6 +132,32 @@ subkeys. You can read a good introduction to this on [Debian Wiki - Subkeys].
 | ------- | ----------- | :------: | ------- |
 | `gpgKeyFile` | The input key file. | &#X2714; |  |
 
+### Change Key Passphrase
+
+`gpgChangeKeyPassphrase` - Changes the passphrase of a key.
+
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgKeyFile` | The key file. | &#X2714; |  |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the key. | &#X2714; |  |
+
+This cannot be used with a passphrase, it can only be used with Pinentry.
+
+WARNING - this will overwrite the key file with the new key with the new passphrase.
+
+### Change Subkey Passphrase
+
+`gpgChangeSubkeyPassphrase` - Changes the passphrase of a subkey.
+
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgKeyFile` | The key file. | &#X2714; |  |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the key. | &#X2714; |  |
+
+This cannot be used with a passphrase, it can only be used with Pinentry.
+
+WARNING - this will overwrite the key file with the new key with the new passphrase.
+
 ### Sign Message
 
 `gpgSign` - Sign a message.
@@ -167,6 +193,7 @@ If you already have a primary key and you are following the best practices then 
 the key now, then set `gpgHomeDir` to the GnuPG home directory on that device.
 
 If you do not already have a primary key then you need to generate one.
+
 ```sbtshell
 set gpgNameReal := "Your (Organization) Name"
 set gpgNameEmail := "your@email.com"
@@ -176,6 +203,7 @@ gpgGenerateKey
 Pinentry should appear and ask you to enter passphrase.
 
 You should see the fingerprint of your new primary key.
+
 ```sbtshell
 [info] Generated your new primary key: 84C263516A75C26F1ADD723FC148D2D9D807D63F
 ```
@@ -187,6 +215,7 @@ You should only use this key in your build and never use your primary key.
 
 You may want to use another subkey if you have already used the default one and want to minimise the impact of a
 compromised subkey.
+
 ```sbtshell
 set gpgAddKey/gpgKeyFingerprint := "84C263516A75C26F1ADD723FC148D2D9D807D63F"
 gpgAddKey
@@ -220,12 +249,16 @@ The fingerprint of a key is the hexadecimal value in the row starting with `fpr`
 In this example there are two fingerprints, one for the primary key `84C263516A75C26F1ADD723FC148D2D9D807D63F` and one
 for the subkey `8BD27F291CB15ABD0DEFA583674FFAE89237F93F`.
 
-### Export the Subkey
+### Export the Key
 
-Now that you have the fingerprint of subkey you can export it.
+Now that you have the fingerprint of primary key you can export it.
+
+We have to export the primary key because we need the primary secret key in order to change the passphrase of the subkey
+in the next step.
+
 ```sbtshell
-set gpgExportSubkey/gpgKeyFingerprint := "8BD27F291CB15ABD0DEFA583674FFAE89237F93F"
-show gpgExportSubkey
+set gpgExportKey/gpgKeyFingerprint := "84C263516A75C26F1ADD723FC148D2D9D807D63F"
+show gpgExportKey
 ```
 
 Pinentry will ask you for the passphrase.
@@ -243,7 +276,78 @@ This is not ideal because we need to commit this passphrase (encrypted of course
 the chances that it may get compromised. We need to change the passphrase so that in the worst case, only this subkey
 is compromised.
 
-Unfortunately GnuPG does not have a good way of doing this.
+Unfortunately GnuPG does not have a good way of doing this. We must import the key into a temporary home directory,
+then change the passphrase and then export it back out again.
+
+```sbtshell
+set gpgChangeSubkeyPassphrase/gpgKeyFingerprint := "8BD27F291CB15ABD0DEFA583674FFAE89237F93F"
+gpgChangeSubkeyPassphrase
+```
+
+Pinentry should appear initially for the current passphrase and then again for the new passphrase.
+
+Remember to use the _subkey_ fingerprint here and not the primary key.
+
+### Encrypt the Subkey
+
+Since we will commit the subkey to source code repository it is a good idea to also encrypt it just in case something
+went wrong and the key was exported without a passphrase or included the primary secret key or perhaps your passphrase
+was weak.
+
+#### Travis GitHub Token
+
+We will use the Travis CLI to encrypt all the secrets to be used in the build.
+
+Go to GitHub and create a Personal access token with the following scopes:
+* `user:email`
+* `read:org`
+* `repo_deployment`
+* `repo:status`
+* `write:repo_hook`
+
+See [Travis CI for open source projects][Travis OSS] on what these scopes are used for.
+
+Save the token somewhere safe as you will need it to login to the Travis CLI and if you forget it you will need to
+generate a new one.
+
+#### Encrypt the GPG Secret Key
+
+Next encrypt the GPG secret key using the instructions on [encrypting files][Travis Encrypting Files].
+
+Install the Travis CLI:
+```bash
+gem install travis
+```
+
+Login using the GitHub Token:
+```bash
+travis login -g YOUR_GITHUB_TOKEN
+```
+
+Encrypt the secret key:
+```bash
+travis encrypt-file target/.gnupg/key.asc
+```
+
+Add the output to the `env.global` section of the `.travis.yml` file.
+
+Move the encrypted secret key:
+```bash
+mv key.asc.enc travis/
+```
+
+Delete the unencrypted secret key:
+```bash
+rm target/.gnupg/key.asc
+```
+
+Now encrypt the GPG passphrase using the instructions on [encryption keys][Travis Encryption Keys].
+```bash
+travis encrypt
+PGP_PASS=YOUR_PGP_PASSPHRASE
+```
+
+Add the output to the `env.global` section of the `.travis.yml` file.
 
 ## Credits
 
@@ -276,3 +380,6 @@ Special thanks to:
 [scalacenter]: https://scala.epfl.ch
 [Scaladex]: https://index.scala-lang.org
 [Travis CI]: https://travis-ci.org
+[Travis OSS]: https://docs.travis-ci.com/user/github-oauth-scopes/#travis-ci-for-open-source-projects
+[Travis Encrypting Files]: https://docs.travis-ci.com/user/encrypting-files
+[Travis Encryption Keys]: https://docs.travis-ci.com/user/encryption-keys

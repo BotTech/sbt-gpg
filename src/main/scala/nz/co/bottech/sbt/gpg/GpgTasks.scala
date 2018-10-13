@@ -1,6 +1,7 @@
 package nz.co.bottech.sbt.gpg
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.attribute.{PosixFilePermission, PosixFilePermissions}
 
 import nz.co.bottech.sbt.gpg.BaseGpgCommands.CommandOutput
 import nz.co.bottech.sbt.gpg.GpgErrors.{GpgErrorChangingPassphrase, GpgMissingSecretKey, GpgUnknownVersionException}
@@ -8,12 +9,18 @@ import nz.co.bottech.sbt.gpg.GpgKeys._
 import sbt.Keys._
 import sbt._
 
+import scala.collection.JavaConverters._
+
 object GpgTasks {
 
   // Max socket length is usually 108 bytes on Linux and 104 bytes on macOS.
   // -1 for the null character.
   // -12 for the /S.gpg-agent suffix.
   final val MaxHomeDirLength = 104 - 1 - 12
+
+  final val HomeDirPermissions: Set[PosixFilePermission] = {
+    PosixFilePermissions.fromString("rwx------").asScala.toSet
+  }
 
   final val ErrorChangingPassphraseRegex = ".*error changing passphrase: (.*)".r
 
@@ -137,14 +144,28 @@ object GpgTasks {
     Seq(fpr, algo, usage, gpgExpireDate.value)
   }
 
-  def exportKeyTask: Def.Initialize[Task[File]] = Def.task {
-    runCommandTask(GpgVersion.commands(_).exportKey).value
-    gpgKeyFile.value
+  def exportKeyTask: Def.Initialize[Task[File]] = Def.taskDyn {
+    val keyFile = prepareKeyFileTask.value
+    Def.task {
+      runCommandTask(GpgVersion.commands(_).exportKey).value
+      keyFile
+    }
   }
 
-  def exportSubkeyTask: Def.Initialize[Task[File]] = Def.task {
-    runCommandTask(GpgVersion.commands(_).exportSubkey).value
-    gpgKeyFile.value
+  def exportSubkeyTask: Def.Initialize[Task[File]] = Def.taskDyn {
+    val keyFile = prepareKeyFileTask.value
+    Def.task {
+      runCommandTask(GpgVersion.commands(_).exportSubkey).value
+      keyFile
+    }
+  }
+
+  def prepareKeyFileTask = Def.task {
+    val file = gpgKeyFile.value
+    val parentDir = Option(file.getParentFile)
+    parentDir.foreach(_.mkdirs())
+    file.delete()
+    file
   }
 
   def exportArgumentsTask: Def.Initialize[Task[Seq[GpgArgument]]] = Def.task {
@@ -222,6 +243,14 @@ object GpgTasks {
     runCommandTask(GpgVersion.commands(_).editKey)
   }
 
+  def tempTargetDirTask: Def.Initialize[Task[File]] = Def.task {
+    val targetDir = target.value
+    val dir = IO.createUniqueDirectory(targetDir)
+    dir.deleteOnExit()
+    dir.setPermissions(HomeDirPermissions)
+    dir
+  }
+
   def changePassphraseParametersTask: Def.Initialize[Task[Seq[String]]] = Def.task {
     val fpr = GpgSettings.mandatoryTask(gpgKeyFingerprint).value
     Seq(fpr, "passwd", "quit")
@@ -278,7 +307,11 @@ object GpgTasks {
       val options = exportArgs.flatMap(_.prepare()) ++ additionalOptions
       exportCommand(version)(gpg, options, Seq(exportKeyFingerprintParam), log)
     }
-    Def.sequential(importTask, changePassphrase, exportTask).map(_ => ())
+    Def.sequential(importTask, changePassphrase, exportTask, deleteHomeDirTask)
+  }
+
+  private def deleteHomeDirTask: Def.Initialize[Task[Unit]] = Def.task {
+    gpgHomeDir.value.foreach(IO.delete)
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A
