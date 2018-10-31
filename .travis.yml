@@ -33,7 +33,7 @@ jobs:
     script: sbt "V2_2/scripted *"
 
 before_deploy:
-- openssl aes-256-cbc -K $encrypted_4f7bbed6af32_key -iv $encrypted_4f7bbed6af32_iv -in key.asc.enc -out temp/target/.gnupg/key.asc -d
+- openssl aes-256-cbc -K $encrypted_4f7bbed6af32_key -iv $encrypted_4f7bbed6af32_iv -in travis/key.asc.enc -out temp/target/.gnupg/key.asc -d
 
 deploy:
   provider: script
