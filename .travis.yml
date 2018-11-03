@@ -46,6 +46,7 @@ jobs:
 before_cache:
 - find "$HOME/.ivy2/cache" -name "ivydata-*.properties" -print -delete
 - find "$HOME/.sbt"        -name "*.lock"               -print -delete
+- sbt cleanLocal
 
 cache:
   directories:
