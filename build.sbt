@@ -22,6 +22,6 @@ scriptedLaunchOpts ++= Seq(
 publishMavenStyle := false
 
 bintrayOrganization := Some("bottech")
-bintrayPackageLabels := Seq("sbt", "plugin")
+bintrayPackageLabels := Seq("sbt", "plugin", "gpg")
 
 ghreleaseRepoOrg := organizationName.value
