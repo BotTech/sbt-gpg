@@ -34,7 +34,7 @@ TaskKey[Unit]("check") := {
     "0206243F9D91A60F9DC6BF7F831C194BA7BF3747"
   )
   val firstSignSubkey = GpgSubkeyInfo(
-    Validity.UlimatelyValid,
+    Validity.Expired,
     3072,
     17,
     "45D39C04A5481116",
@@ -75,43 +75,44 @@ TaskKey[Unit]("check") := {
   require(keys(0) === firstKey)
   val bobette = GpgUserID(
     Validity.UlimatelyValid,
-    Instant.ofEpochMilli(1538650526),
-    "C595E1BBEAF34E53A50CC3A808C266A3DECA6A77",
-    "Bobette <bob@gmail.com>",
+    Instant.parse("1970-01-18T20:09:22.133Z"),
+    "93B3F05FA969DF602A1785691CF3C5CFA34CACBC",
+    "Bobette <bob@example.com>",
     ""
   )
-  val secondEncryptSubkey = GpgSubkeyInfo(
+  // TODO: Change this back to an encrypt only subkey.
+  val secondSignSubkey = GpgSubkeyInfo(
     Validity.UlimatelyValid,
     3072,
     1,
-    "D9590422EEA48955",
-    Instant.ofEpochMilli(1538650526),
-    Some(Instant.ofEpochMilli(1541242526)),
-    Set(Encrypt),
+    "9298FC5F87A30256",
+    Instant.parse("1970-01-18T20:09:22.133Z"),
+    None,
+    Set(Sign),
     "+",
     Set.empty,
     "",
     "",
-    "D280CAFCE49A316AB1E44F0FD9590422EEA48955",
-    "8B2C23DB534D4400D16412D9E5703D59EF21F782"
+    "8690765CB35CE00FAB53FDCB9298FC5F87A30256",
+    "F5B806CFFBE103E6F9E02AD8FC2FFE17B2BAC758"
   )
   val secondKey = GpgKeyInfo(
     Validity.UlimatelyValid,
     3072,
     1,
-    "D84FFA353EFAA96B",
-    Instant.ofEpochMilli(1538650526),
-    Some(Instant.ofEpochMilli(1541242526)),
+    "D79ABBF6BC015967",
+    Instant.parse("1970-01-18T20:09:22.133Z"),
+    None,
     "u",
-    Set(Sign, Certify, PrimaryEncrypt, PrimarySign, PrimaryCertify),
+    Set(Authentication, Encrypt, Sign, Certify, PrimaryAuthentication, PrimaryEncrypt, PrimarySign, PrimaryCertify),
     "+",
     Set.empty,
     "",
     "",
-    "298686B3B7CFE03D307F3D39D84FFA353EFAA96B",
-    "515BE0F0CF13DAA3D66A0E25B78DBDA270D1110F",
+    "B1FD663F1B9A6F3F13012D85D79ABBF6BC015967",
+    "D249B5960D332C923772A0A4F8F70F8136720246",
     bobette,
-    Seq(secondEncryptSubkey)
+    Seq(secondSignSubkey)
   )
   require(keys(1) === secondKey)
 }
