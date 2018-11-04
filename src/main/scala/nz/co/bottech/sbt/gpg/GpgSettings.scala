@@ -14,20 +14,25 @@ object GpgSettings {
     gpgCommand := gpgCommandAndVersion.value._1,
     gpgCommandAndVersion := gpgCommandAndVersionTask.value,
     gpgExpireDate := "0",
+    gpgHomeDir := None,
     gpgKeyLength := 4096,
     gpgKeyType := "RSA",
     gpgKeyUsage := Set(),
-    gpgHomeDir := None,
     gpgKeyFile := target.value / ".gnupg" / "key.asc",
     gpgParameters := Seq.empty,
     gpgPassphrase := None,
     gpgPassphraseFile := gpgPassphraseFileTask.value,
+    gpgResolverName := resolverNameTask.value,
     gpgSelectPassphrase := gpgSelectPassphraseTask.value,
+    gpgSignArtifacts := true,
+    gpgSignedArtifacts := signedArtifactsTask.value,
     gpgStatusFileDescriptor := 1,
     gpgSubkeyLength := gpgKeyLength.value,
     gpgSubkeyType := gpgKeyType.value,
     gpgSubkeyUsage := Set(GpgKeyUsage.sign),
-    gpgVersion := gpgCommandAndVersion.value._2
+    gpgVersion := gpgCommandAndVersion.value._2,
+    publishConfiguration := (publish / publishConfiguration).value,
+    publishLocalConfiguration := (publishLocal / publishLocalConfiguration).value
   ) ++
     inTaskRef(gpgGenerateKey)(
       Seq(gpgGenerateKey := generateKeyTask.value)
@@ -88,11 +93,27 @@ object GpgSettings {
     inTaskRef(gpgSigner)(
       Seq(gpgSigner := signerTask.value)
     ) ++
-    inTaskRef(gpgSignedArtifacts)(
-      Seq(gpgSignedArtifacts := signedArtifactsTask.value)
+    inTask(publish)(
+      Seq(
+        gpgSignedArtifacts := signedArtifactsTask.value,
+        publishConfiguration := publishConfigurationTask.value
+      )
     ) ++
-    inTask(gpgSignedArtifacts)(
-      Seq(gpgArmor := (gpgSigner / gpgArmor).value)
+    inTask(publishLocal)(
+      Seq(
+        publishMavenStyle := false,
+        gpgResolverName := "local",
+        gpgSignedArtifacts := signedArtifactsTask.value,
+        publishLocalConfiguration := publishConfigurationTask.value
+      )
+    ) ++
+    inTask(publishM2)(
+      Seq(
+        publishMavenStyle := true,
+        gpgResolverName := Resolver.publishMavenLocal.name,
+        gpgSignedArtifacts := signedArtifactsTask.value,
+        publishM2Configuration := publishConfigurationTask.value
+      )
     ) ++
     inTaskRef(gpgChangeKeyPassphrase)(
       Seq(gpgChangeKeyPassphrase := changeKeyPassphraseTask.value)

@@ -8,6 +8,7 @@ import nz.co.bottech.sbt.gpg.GpgErrors.{GpgErrorChangingPassphrase, GpgMissingSe
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import sbt.Keys._
 import sbt._
+import sbt.Classpaths._
 
 import scala.collection.JavaConverters._
 
@@ -222,21 +223,45 @@ object GpgTasks {
 
   def signedArtifactsTask = Def.task {
     val artifacts = packagedArtifacts.value
-    val armor = gpgArmor.value
+    val armor = (gpgSigner / gpgArmor).value
     val signer = gpgSigner.value
-    val signatureArtifact = if (armor) {
-      GpgSigner.asc _
+    val sign = gpgSignArtifacts.value
+    if (sign) {
+      val signatureArtifact = if (armor) {
+        GpgSigner.asc _
+      } else {
+        GpgSigner.sig _
+      }
+      artifacts.flatMap {
+        case (art, file) =>
+          val signature = signer(file)
+          Seq(
+            art -> file,
+            signatureArtifact(signature.getName, art) -> signature
+          )
+      }
     } else {
-      GpgSigner.sig _
+      artifacts
     }
-    artifacts.flatMap {
-      case (art, file) =>
-        val signature = signer(file)
-        Seq(
-          art -> file,
-          signatureArtifact(signature.getName, art) -> signature
-        )
-    }
+  }
+
+  def resolverNameTask = Def.task {
+    val publishToOption = publishTo.value
+    if (publishArtifact.value) getPublishTo(publishToOption).name else "local"
+  }
+
+  def publishConfigurationTask = Def.task {
+    publishConfig(
+      publishMavenStyle.value,
+      deliverPattern(crossTarget.value),
+      if (isSnapshot.value) "integration" else "release",
+      ivyConfigurations.value.map(c => ConfigRef(c.name)).toVector,
+      gpgSignedArtifacts.value.toVector,
+      checksums.value.toVector,
+      gpgResolverName.value,
+      ivyLoggingLevel.value,
+      isSnapshot.value
+    )
   }
 
   def editKeyTask: Def.Initialize[Task[CommandOutput]] = {

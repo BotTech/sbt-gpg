@@ -25,3 +25,7 @@ bintrayOrganization := Some("bottech")
 bintrayPackageLabels := Seq("sbt", "plugin", "gpg")
 
 ghreleaseRepoOrg := organizationName.value
+
+gpgPassphrase := Option(System.getenv("PGP_PASS"))
+gpgPassphraseFile := Some(file("travis") / "key.asc")
+//publish / packagedArtifacts := (publish / gpgSignedArtifacts).value

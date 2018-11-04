@@ -178,6 +178,7 @@ generated file.
 | ------- | ----------- | :------: | ------- |
 | `gpgArmor` | Create ASCII armored output. | &#X2718; | true |
 | `gpgKeyFingerprint` | The SHA-1 fingerprint of the key with signing capabilities. | &#X2714; |  |
+| `gpgSignArtifacts` | Whether to sign artifacts. | &#X2718; | true |
 
 Note that these should be scoped to the `gpgSigner` task.
 
@@ -185,9 +186,9 @@ Note that these should be scoped to the `gpgSigner` task.
 
 There are a bunch of examples in the [sbt tests](src/sbt-test).
 
-## Travis CI
+### Travis CI
 
-### Generate a Primary Key
+#### Generate a Primary Key
 
 If you already have a primary key and you are following the best practices then you should mount the device that contains
 the key now, then set `gpgHomeDir` to the GnuPG home directory on that device.
@@ -211,7 +212,7 @@ You should see the fingerprint of your new primary key.
 By default it will have also generated a new subkey with signing capabilities.
 You should only use this key in your build and never use your primary key.
 
-### Add a Subkey
+#### Add a Subkey
 
 You may want to use another subkey if you have already used the default one and want to minimise the impact of a
 compromised subkey.
@@ -227,7 +228,7 @@ Look for the row starting with `pub` which matches your primary key.
 Underneath that is a row starting with `fpr`.
 The fingerprint is the hexadecimal value in that row.
 
-### Find the Fingerprint
+#### Find the Fingerprint
 
 To find the fingerprint of a key then you need to find it in the key listings:
 ```sbtshell
@@ -249,7 +250,7 @@ The fingerprint of a key is the hexadecimal value in the row starting with `fpr`
 In this example there are two fingerprints, one for the primary key `84C263516A75C26F1ADD723FC148D2D9D807D63F` and one
 for the subkey `8BD27F291CB15ABD0DEFA583674FFAE89237F93F`.
 
-### Export the Key
+#### Export the Key
 
 Now that you have the fingerprint of primary key you can export it.
 
@@ -269,7 +270,7 @@ by using:
 show gpgKeyFile
 ```
 
-### Change the Subkey passphrase
+#### Change the Subkey passphrase
 
 The subkey that was exported in the previous step will have the same passphrase as the primary key.
 This is not ideal because we need to commit this passphrase (encrypted of course) to the build and so that increases
@@ -288,13 +289,13 @@ Pinentry should appear initially for the current passphrase and then again for t
 
 Remember to use the _subkey_ fingerprint here and not the primary key.
 
-### Encrypt the Subkey
+#### Encrypt the Subkey
 
 Since we will commit the subkey to source code repository it is a good idea to also encrypt it just in case something
 went wrong and the key was exported without a passphrase or included the primary secret key or perhaps your passphrase
 was weak.
 
-#### Travis GitHub Token
+##### Travis GitHub Token
 
 We will use the Travis CLI to encrypt all the secrets to be used in the build.
 
@@ -310,7 +311,7 @@ See [Travis CI for open source projects][Travis OSS] on what these scopes are us
 Save the token somewhere safe as you will need it to login to the Travis CLI and if you forget it you will need to
 generate a new one.
 
-#### Encrypt the GPG Secret Key
+##### Encrypt the GPG Secret Key
 
 Next encrypt the GPG secret key using the instructions on [encrypting files][Travis Encrypting Files].
 
@@ -332,7 +333,7 @@ travis encrypt-file target/.gnupg/key.asc
 Add the output to the `before_deploy` section of the `.travis.yml` file. For example:
 ```yaml
 before_deploy:
-- openssl aes-256-cbc -K $encrypted_12345abcdef -iv $encrypted_12345abcdef -in travis/key.asc.enc -out travis/key.asc -d
+- openssl aes-256-cbc -K $encrypted_12345abcdef -iv $encrypted_12345abcdef -in travis/key.asc.enc -out travis/key.asc
 ```
 
 Move the encrypted secret key:
@@ -352,6 +353,22 @@ PGP_PASS=YOUR_PGP_PASSPHRASE
 ```
 
 Add the output to the `env.global` section of the `.travis.yml` file.
+
+#### Add the Signed Artifacts
+
+The last few steps are to configure the key and add the signed artifacts so that they are published.
+
+First add the GPG passphrase from the environment variable set in the previous step:
+```sbt
+gpgPassphrase := Option(System.getenv("PGP_PASS"))
+```
+
+Then add the path to the secret key (the output of the `openssl` command above):
+```sbt
+gpgPassphraseFile := Some(file("travis") / "key.asc")
+```
+
+Now when you run `publish` the artifacts will be published along with their signatures.
 
 ## Credits
 

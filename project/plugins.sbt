@@ -7,3 +7,7 @@ addSbtPlugin("com.dwijnand" % "sbt-dynver" % "3.0.0")
 addSbtPlugin("se.marcuslonnberg" % "sbt-docker" % "1.5.0")
 
 addSbtPlugin("com.eed3si9n" % "sbt-dirty-money" % "0.2.0")
+
+resolvers += Resolver.bintrayRepo("bottech", "sbt-plugins")
+
+addSbtPlugin("nz.co.bottech" % "sbt-gpg" % "1.0.0-RC1")

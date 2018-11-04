@@ -2,14 +2,15 @@ package nz.co.bottech.sbt.gpg
 
 import nz.co.bottech.sbt.gpg.GpgSettings._
 import sbt._
+import sbt.plugins.IvyPlugin
 
 import scala.language.implicitConversions
 
 object GpgPlugin extends AutoPlugin {
 
-  override def trigger = allRequirements
+  override def trigger: PluginTrigger = allRequirements
 
-  override def requires = Plugins.empty
+  override def requires: Plugins = IvyPlugin
 
   object autoImport extends GpgKeys {
 
