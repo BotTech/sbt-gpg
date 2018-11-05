@@ -10,4 +10,4 @@ addSbtPlugin("com.eed3si9n" % "sbt-dirty-money" % "0.2.0")
 
 resolvers += Resolver.bintrayIvyRepo("bottech", "sbt-plugins")
 
-addSbtPlugin("nz.co.bottech" % "sbt-gpg" % "1.0.0-RC1")
+addSbtPlugin("nz.co.bottech" % "sbt-gpg" % "1.0.0-RC2")
