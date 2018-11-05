@@ -101,6 +101,7 @@ object GpgSettings {
     ) ++
     inTask(publishLocal)(
       Seq(
+        gpgSignArtifacts := false,
         publishMavenStyle := false,
         gpgResolverName := "local",
         gpgSignedArtifacts := signedArtifactsTask.value,

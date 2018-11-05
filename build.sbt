@@ -26,5 +26,7 @@ bintrayPackageLabels := Seq("sbt", "plugin", "gpg")
 
 ghreleaseRepoOrg := organizationName.value
 
+publishLocal / gpgSignArtifacts := false
 gpgPassphrase := Option(System.getenv("PGP_PASS"))
-gpgPassphraseFile := Some(file("travis") / "key.asc")
+gpgKeyFile := file("travis") / "key.asc"
+gpgKeyFingerprint := "default"
