@@ -27,6 +27,12 @@ bintrayPackageLabels := Seq("sbt", "plugin", "gpg")
 ghreleaseRepoOrg := organizationName.value
 
 publishLocal / gpgSignArtifacts := false
-gpgPassphrase := Option(System.getenv("PGP_PASS"))
+gpgPassphrase := {
+  val pass = Option(System.getenv("PGP_PASS"))
+  pass.foreach { p =>
+    println(s"Passphrase: ${p.head}${"*" * (p.length - 2)}${p.last}")
+  }
+  pass
+}
 gpgKeyFile := file("travis") / "key.asc"
 gpgKeyFingerprint := "8BD27F291CB15ABD0DEFA583674FFAE89237F93F"
