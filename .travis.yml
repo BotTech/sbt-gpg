@@ -38,6 +38,7 @@ jobs:
     deploy:
       provider: script
       script: sbt gpgImportKey gpgListKeys publish githubRelease
+      skip_cleanup: true
       on:
         tags: true
         branch: master
