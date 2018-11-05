@@ -29,4 +29,4 @@ ghreleaseRepoOrg := organizationName.value
 publishLocal / gpgSignArtifacts := false
 gpgPassphrase := Option(System.getenv("PGP_PASS"))
 gpgKeyFile := file("travis") / "key.asc"
-gpgKeyFingerprint := "default"
+gpgKeyFingerprint := "8BD27F291CB15ABD0DEFA583674FFAE89237F93F"
