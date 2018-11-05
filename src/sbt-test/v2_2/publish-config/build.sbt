@@ -20,6 +20,7 @@ val messageFileSig = file("/") / "root" / ".gnupg" / "message.txt.asc"
 
 inTask(publishLocal) {
   Seq(
+    gpgSignArtifacts := true,
     packagedArtifacts := Map(Artifact("message.txt") -> messageFile)
   )
 }
