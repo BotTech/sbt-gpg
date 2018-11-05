@@ -34,9 +34,7 @@ jobs:
   - stage: publish
     script: skip
     before_deploy:
-    - openssl aes-256-cbc -K $encrypted_4f7bbed6af32_key -iv $encrypted_4f7bbed6af32_iv -in travis/key.asc.enc -out travis/key.asc
-    - head -n1 travis/key.asc
-    - tail -n1 travis/key.asc
+    - openssl aes-256-cbc -K $encrypted_4f7bbed6af32_key -iv $encrypted_4f7bbed6af32_iv -in travis/key.asc.enc -out travis/key.asc -d
     deploy:
       provider: script
       script: sbt gpgImportKey gpgListKeys publish githubRelease

@@ -333,7 +333,7 @@ travis encrypt-file target/.gnupg/key.asc
 Add the output to the `before_deploy` section of the `.travis.yml` file. For example:
 ```yaml
 before_deploy:
-- openssl aes-256-cbc -K $encrypted_12345abcdef -iv $encrypted_12345abcdef -in travis/key.asc.enc -out travis/key.asc
+- openssl aes-256-cbc -K $encrypted_12345abcdef -iv $encrypted_12345abcdef -in travis/key.asc.enc -out travis/key.asc -d
 ```
 
 Move the encrypted secret key:
