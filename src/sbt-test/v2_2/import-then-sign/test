@@ -1,0 +1,4 @@
+> gpgImportKey
+> gpgTrustKey
+> gpgListKeys
+> gpgSignedArtifacts

@@ -22,6 +22,7 @@ object GpgFlag {
   val withColon = GpgFlag("--with-colons")
   val withKeyGrip = GpgFlag("--with-keygrip")
   val withSecret = GpgFlag("--with-secret")
+  val yes = GpgFlag("--yes")
 }
 
 final case class GpgOption(option: String, value: () => String) extends GpgArgument {
@@ -31,6 +32,7 @@ final case class GpgOption(option: String, value: () => String) extends GpgArgum
 
 object GpgOption {
 
+  val commandFile = FileOption("--command-file")
   val homeDir = DirectoryOption("--homedir", create = true)
   val output = FileOption("--output")
   val localUser = ToStringOption("--local-user")

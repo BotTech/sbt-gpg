@@ -1,6 +1,7 @@
 package nz.co.bottech.sbt.gpg
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import java.nio.file.attribute.{PosixFilePermission, PosixFilePermissions}
 
 import nz.co.bottech.sbt.gpg.BaseGpgCommands.CommandOutput
@@ -298,6 +299,35 @@ object GpgTasks {
 
   private def editSubkeyPassphraseTask = {
     val missingKeyMessage = "Cannot change the passphrase of a subkey without both the primary secret key and the subkey secret key."
+    editAnyKeyPassphraseTask(missingKeyMessage)
+  }
+
+  def commandArgumentsTask: Def.Initialize[Task[Seq[GpgArgument]]] = Def.task {
+    val commands = GpgVersion.commands(gpgVersion.value)
+    commands.commandArguments(gpgCommandFile.value)
+  }
+
+  def commandFileTask = Def.task {
+    val log = state.value.log
+    val commandFile = target.value / ".gnupg" / "commands"
+    val lines = gpgCommands.value
+    val file = TemporaryFile.create(commandFile, lines)
+    log.debug(s"Command file written to $file.")
+    file
+  }
+
+
+  def trustKeyParametersTask: Def.Initialize[Task[Seq[String]]] = Def.task {
+    val fpr = GpgSettings.mandatoryTask(gpgKeyFingerprint).value
+    Seq(fpr)
+  }
+
+  def trustKeyCommandsTask: Def.Initialize[Task[Seq[String]]] = Def.task {
+    Seq("trust", gpgTrustLevel.value.toString, "quit")
+  }
+
+  def trustKeyTask: Def.Initialize[Task[Unit]] = Def.taskDyn {
+    val missingKeyMessage = "Missing secret key."
     editAnyKeyPassphraseTask(missingKeyMessage)
   }
 

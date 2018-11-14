@@ -11,7 +11,9 @@ trait GpgKeys {
   val gpgChangeKeyPassphrase = taskKey[Unit]("Changes the passphrase of a key.")
   val gpgChangeSubkeyPassphrase = taskKey[Unit]("Changes the passphrase of a subkey.")
   val gpgCommand = taskKey[String]("The GnuPGP gpg CLI command.")
+  val gpgCommands = taskKey[Seq[String]]("The gpg commands to run.")
   val gpgCommandAndVersion = taskKey[(String, GpgVersion)]("The GnuPGP gpg CLI command and version.")
+  val gpgCommandFile = taskKey[File]("The command file.")
   val gpgExpireDate = settingKey[String]("The expiration date for the key (and the subkey).")
   val gpgExportKey = taskKey[File]("Exports a key with the primary secret key.")
   val gpgExportSubkey = taskKey[File]("Exports a subkey without the primary secret key.")
@@ -42,6 +44,8 @@ trait GpgKeys {
   val gpgSubkeyLength = settingKey[Int]("The length of the generated subkey in bits.")
   val gpgSubkeyType = settingKey[String]("The OpenPGP algorithm number or name to use for the subkey.")
   val gpgSubkeyUsage = settingKey[Set[GpgKeyUsage]]("List of subkey usages.")
+  val gpgTrustKey = taskKey[Unit]("Trusts a key.")
+  val gpgTrustLevel = taskKey[Int]("How far you trust the key.")
   val gpgVersion = taskKey[GpgVersion]("The version of GnuPGP.")
 }
 

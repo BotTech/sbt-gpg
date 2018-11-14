@@ -61,6 +61,7 @@ trait BaseGpgCommands {
       Seq(
         GpgFlag.batch,
         GpgFlag.withColon,
+        GpgFlag.yes,
         GpgOption.statusFD(statusFileDescriptor)
       )
   }
@@ -69,6 +70,12 @@ trait BaseGpgCommands {
     Seq(
       GpgOption.pinentryMode("loopback"),
       GpgOption.passphraseFile(file)
+    )
+  }
+
+  def commandArguments(file: File): Seq[GpgArgument] = {
+    Seq(
+      GpgOption.commandFile(file)
     )
   }
 

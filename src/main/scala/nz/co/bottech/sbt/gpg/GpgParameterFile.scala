@@ -1,14 +1,8 @@
 package nz.co.bottech.sbt.gpg
 
 import java.io.File
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.attribute.{FileAttribute, PosixFilePermission, PosixFilePermissions}
-import java.util
 
 import sbt.util.Logger
-
-import scala.collection.JavaConverters._
 
 final case class GpgKeyParameters(length: Int, typ: String, usage: Set[GpgKeyUsage])
 
@@ -22,10 +16,6 @@ final case class GpgParameters(key: GpgKeyParameters,
 
 object GpgParameterFile {
 
-  private final val Permissions = {
-    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"))
-  }
-
   def create(parameters: GpgParameters, file: File, log: Logger): File = {
     import parameters._
     val lines = {
@@ -35,13 +25,9 @@ object GpgParameterFile {
         nameLines(name) ++:
         passphrase.map(p => s"Passphrase: $p").toSeq
     }
-    Files.deleteIfExists(file.toPath)
-    Option(file.getParentFile).foreach(_.mkdirs())
-    Files.createFile(file.toPath, Permissions)
-    file.deleteOnExit()
-    sbt.IO.writeLines(file, lines, StandardCharsets.UTF_8, append = false)
-    log.debug(s"Parameters file written to $file.")
-    file
+    val parametersFile = TemporaryFile.create(file, lines)
+    log.debug(s"Parameters file written to $parametersFile.")
+    parametersFile
   }
 
   private def keyLines(key: GpgKeyParameters, prefix: String): Seq[String] = {

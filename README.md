@@ -158,6 +158,19 @@ This cannot be used with a passphrase, it can only be used with Pinentry.
 
 WARNING - this will overwrite the key file with the new key with the new passphrase.
 
+### Trust Key
+
+`gpgTrustKey` - Trusts a key.
+
+| Setting | Description | Required | Default |
+| ------- | ----------- | :------: | ------- |
+| `gpgKeyFingerprint` | The SHA-1 fingerprint of the key. | &#X2714; |  |
+| `gpgTrustLevel` | How far you trust the key. | &#X2714; | 5 |
+
+This is commonly used after importing an exported key.
+
+WARNING - Only use this common on your own keys that you completely trust.
+
 ### Sign Message
 
 `gpgSign` - Sign a message.

@@ -121,7 +121,6 @@ object GpgSettings {
     ) ++
     inTask(gpgChangeKeyPassphrase)(
       Seq(
-        gpgArguments := gpgArgumentsTask.value,
         gpgHomeDir := Some(tempTargetDirTask.value),
         gpgParameters := changePassphraseParametersTask.value
       )
@@ -131,9 +130,20 @@ object GpgSettings {
     ) ++
     inTask(gpgChangeSubkeyPassphrase)(
       Seq(
-        gpgArguments := gpgArgumentsTask.value,
         gpgHomeDir := Some(tempTargetDirTask.value),
         gpgParameters := changePassphraseParametersTask.value
+      )
+    ) ++
+    inTaskRef(gpgTrustKey)(
+      Seq(gpgTrustKey := trustKeyTask.value)
+    ) ++
+    inTask(gpgTrustKey)(
+      Seq(
+        gpgArguments := gpgArguments.value ++ commandArgumentsTask.value,
+        gpgCommands := trustKeyCommandsTask.value,
+        gpgCommandFile := commandFileTask.value,
+        gpgParameters := trustKeyParametersTask.value,
+        gpgTrustLevel := 5
       )
     )
 
