@@ -1,2 +1,2 @@
-> check
+> gpgExportKey
 $ exists target/.gnupg/key.asc

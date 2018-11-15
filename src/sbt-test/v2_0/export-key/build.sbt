@@ -13,5 +13,5 @@ inTask(gpgExportSubkey) {
 }
 
 TaskKey[Unit]("check") := {
-  gpgExportSubkey.value
+  .value
 }

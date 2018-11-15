@@ -11,7 +11,3 @@ inTask(gpgExportSubkey) {
     gpgKeyFile := file("/") / "root" / ".gnupg" / "key.asc"
   )
 }
-
-TaskKey[Unit]("check") := {
-  gpgExportSubkey.value
-}
