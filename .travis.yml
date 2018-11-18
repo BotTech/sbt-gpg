@@ -22,22 +22,24 @@ env:
   - secure: "HNUDoIgswSokVJBPfRVdoFGTENelBh3lkHsJYLbzUobQhRIV60zlygY/2US4+W9t6GzyqzIb0XCpp53ksGIC3F6pblhPG5tB04DQG30gHGw7RNJHnLJA8pu8H1lg1jagQ2A1BSmwa7ZDBWNW05JiFxgqKD/9Y6VNWB+AyYfR5+Xz7n2Rl4DfEJCPJVu1qT+yzydJcgCTyt05KBij89L3G4wWCkChk6R3uk48hBJtbjnzCOnWk7z6Ikni1HgXLQf+aLV9qx9Qkg1q+O1lHbadqwZ23/b6PfYrMfSpUqvyZeTrCVooeW/q5FF3yk23S8HA4ITn32mp0kttxL/iqLmsmEaSNEWhZa+GxTTtweTTaBSOIzL/161Cin6uXpXLMDwZY6SkxShrdYJFLEt3D+gNh86/SKDg68GkoPmDaKncpMqCvNv2VAqYhKrpROpYHHARGZFlf4ClsLF93xW74k/8DJdbzuPl849q7ufoGaEoaBDLrYN1Z4d/ub6sr3+qopwAwqhxSPZ2LcIE5qYjgMX69jtIpB76xiWd8SiNW2YDVc7woE873BLVlrY12PWh0BSphrJzeZQ9d3rQieGqFUN2O9JHmDLzO6rVqrYc2stGuekqnN6JnKBSqmdbYApnIkdpNJEqSwqghZDIR6a2bTOrQAj3m00eHBba04Iv6voHyFY="
   # Github Token
   - secure: "jPWZjfhoErQaOMmIher8LC3Dwv/2s9+VfJmg1DtCvESwUH7tJYdb65wvKUhU/FP9V1L6eiDiPlggR0x0FMy2E2TXPURBn4VrgrQt+Tm4ZrFMtgWZB7sOYzOnaqiViCZJvi60UigY81Cvj+QHi13PfbdKpBLFoKkEj1JA+/iezRszCkrrI5rvlZlnCw9QvZgF73I24D0gWuMFyPfD2dn8o/i25DQ6woI9yLQ0b+a3KeDEA2u6S6cUn/yM6jaauT9cnQgTG8ioViNoqIZ77IJzEGYOJ/0bP2a2qu+vEb9d4effcUu3Tc7fmtt8CdKTcmMeYL33MczOM0d7L3ila9sV5VxyTQSysXg+gAXIOyHs/GC9eS9xMxkfogPcajRo2TeAPMfo8TovUdCmVfJqcNyBZijy4Eu9kkMLlJWyMixKOiNAT0aOxgnM17bt/w9UtT3lrfLL73vD1UB43t+ICX1O/3d/I7G9sezcygOkuEnGxr0U94J6BOZ0vZV7mCOPFYpHDjfM75IFrjJv6U1BHHmEl8wgtbim3Hgx5d4GGFpqPMs7ndQ4pkSzQFsgQa6vAcZjo6E2CCMg+pzwwTif3B5bJplLz3fZjD+0aLfU1N79sYPSNHfgdQhwWfquUtipOXyibZm+R+cYYyy2EsYKxVgaID8v79dWZZs3KT9+lIoCUAs="
-  matrix:
-  - PGP_VERSION=V2_0
-  - PGP_VERSION=V2_1
-  - PGP_VERSION=V2_2
+#  matrix:
+#  - PGP_VERSION=V2_0
+#  - PGP_VERSION=V2_1
+#  - PGP_VERSION=V2_2
 
-script: sbt "$PGP_VERSION/scripted *"
+#script: sbt "$PGP_VERSION/scripted *"
+script: echo hello
 
 jobs:
   include:
   - stage: publish
     script: skip
     before_deploy:
-    - openssl aes-256-cbc -K $encrypted_4f7bbed6af32_key -iv $encrypted_4f7bbed6af32_iv -in travis/key.asc.enc -out travis/key.asc -d
+#    - openssl aes-256-cbc -K $encrypted_4f7bbed6af32_key -iv $encrypted_4f7bbed6af32_iv -in travis/key.asc.enc -out travis/key.asc -d
     deploy:
       provider: script
-      script: sbt gpgImportKey publish githubRelease
+#      script: sbt gpgImportKey publish githubRelease
+      script: sbt gpgImportKey gpgListKeys gpgSignedArtifacts
       skip_cleanup: true
       on:
         tags: true
