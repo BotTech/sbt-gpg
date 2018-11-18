@@ -1,4 +1,3 @@
 > gpgImportKey
-> gpgTrustKey
 > gpgListKeys
 > gpgSignedArtifacts

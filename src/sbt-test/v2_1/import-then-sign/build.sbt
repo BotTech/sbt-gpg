@@ -2,7 +2,7 @@ scalaVersion := "2.12.6"
 
 gpgPassphrase := Some("barfoo123")
 publishLocal / gpgSignArtifacts := true
-gpgKeyFingerprint := "B9A633DBD1A309DB71ED55940E839DDD93691327"
+gpgKeyFingerprint := "FEC82270648E886FEFBA0EABE9E0393F58CBAEA5!"
 
 inTask(gpgImportKey) {
   Seq(
@@ -13,13 +13,11 @@ inTask(gpgImportKey) {
   )
 }
 
-inTask(gpgTrustKey) {
-  Seq(
-    gpgCommandFile := {
-      file("/") / "root" / ".gnupg" / gpgCommandFile.value.getName
-    },
-    gpgKeyFingerprint := "DE29CBE0AC9B2EB810E694D7B6A8B64B909CAF2F"
-  )
+packagedArtifacts := {
+  val baseDir = baseDirectory.value
+  packagedArtifacts.value.mapValues {
+    Path.rebase(baseDir, file("/") / "root" / "sbt-gpg").andThen(_.get)
+  }
 }
 
 inTask(gpgSigner) {
