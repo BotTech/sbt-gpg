@@ -365,8 +365,15 @@ gpgPassphrase := Option(System.getenv("PGP_PASS"))
 
 Then add the path to the secret key (the output of the `openssl` command above):
 ```sbt
-gpgPassphraseFile := Some(file("travis") / "key.asc")
+gpgKeyFile := Some(file("travis") / "key.asc")
 ```
+
+And lastly add the fingerprint of the subkey:
+```sbt
+gpgKeyFingerprint := "8BD27F291CB15ABD0DEFA583674FFAE89237F93F!"
+```
+
+NOTE - The fingerprint must end with a `!` in order to get GnuPG to use the subkey.
 
 Now when you run `publish` the artifacts will be published along with their signatures.
 
