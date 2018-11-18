@@ -57,6 +57,7 @@ object ScriptedGpgDockerPlugin extends AutoPlugin {
       .from(s"ubuntu:$ubuntuTag")
       .run("apt-get", "update")
       .run("apt-get", "install", "-y", gpgPackage)
+      .run("apt-get", "install", "-y", "vim")
       .add(proxyScript.value, "/usr/local/bin/proxy")
       .run("chmod", "+x", "/usr/local/bin/proxy")
   }
