@@ -16,7 +16,7 @@ addons:
 env:
   global:
   # PGP Passphrase
-  - secure: "oPuBW35sPnwEEIv917vKaQB/s9TyMtbzje3Ld3j9M5UTakUDQLa7veoC93Z/WiJ9U/mvaiwdPyNQLbSjCaXxOqVpkqdJyQCufEtFamnwKKGrx8oFP71Q86iwSDVd3kRGYq2FNDOEDX7xgnLl2grHnc5ZiybpwEaSbWaCxxzY6J8bF89RSfAAylH2V52ISW1hjLlNlHFig5hbnfZNI3JhNQ6q+7RZb7pr/jQaKNTIX/V5rvuLrGGh4GsVxp5H03rSe4mYn9Mf9Sh76qIemLBlpxj3Fw/p6hMpob9TaVhQn8EFDgCaXNjroma6O0UgZTlaHQXOtOLp3cFowWxHWEPPPdRXs0a2hq7IJ9qDNVAqpV+jvrKE9WcAdPAC/hj+GK3TGbR/hmniSGfD+uJ841ZkPvg+H/Z6MxFrl7k6NOlGsgbxChl+dr/ICxluhhHvPCHcbi/j1WSXtqtIbdEk92WLTHbOqDrt8d5j6UhcDGv6yO+2ZOGH8XxURkZVobZB+y5m5CnrfrHx9WjzPOhthNQIp/VDZle0J+pR82ZbLZWR/6LkK/tTWKeE7EdTkMkFj3V2iSp6tuAJCBNCQk04cDKQndLM6mHPgfunybpdQEVaCzxTXeCg/ufoa9rDW4MSmLcojIxSA2M+3J6LDwD9qeRw0F+6u3BtU1WnrlKuoYZjIbw="
+  - secure: "PX23NLgtWFlpQj1hRx4pZi2iByORXCC/v6Je/2Gx+TsDH3VO3km6axFi0Ts844Pss0qKambhL151hHB7jLlYBWwLGxEhepzmL7idTbQ21/cdUJXSHnudQp/LqbgquZ8RrxHmBeVDGaecXhFzUCBMyp5isyydCiugyHt9OnNon7c91sxTWTom04sQk3kMky3KArfP7x7lVejOy9c6VOJrC63DV9LrYhF3IQLbTWGBrHLdr/GtPjxD3TA9RLPH4psUqEkEgL/yJhBq/vm23rcURsNQPvU0CcmPDHNxHWy5YsnXOBQuxwmbw9RstB1d22Mu08d4oO96JoNcRBnhuzlvByWJ1I/0XJz0HITRoVgCQyOXfdWJfHC5Sd1BdLtJ9SE++6aZoXUfVhk6zIIs2nQDvU42Ur1OzbG1mHPZ6rdlswx6G6HxCU5HWG+hXHvOF/RmH44coYPpPnVtUSlq9ncxAIbBIbHobHoZyNKXikHTxLzDvSuyV82ST5sE9xrA9nB8JXprARxeOiCld+UaCGwaAmuOkIQKnMz4UOHKSZE6ZwVesYImpOwM6w4VBzx26QfgrX23RkYO/dn5SeFgVCgoBpuWzBbG1uEBItduoftIrLuBSHPcAEiKynB8ovZG9JXBeYMd5v/Sq+BCp/+z7LVDVja/zv2EwL8XvcajytpnZOU="
   # Bintray Username and API Key
   - BINTRAY_USER=steinybot
   - secure: "HNUDoIgswSokVJBPfRVdoFGTENelBh3lkHsJYLbzUobQhRIV60zlygY/2US4+W9t6GzyqzIb0XCpp53ksGIC3F6pblhPG5tB04DQG30gHGw7RNJHnLJA8pu8H1lg1jagQ2A1BSmwa7ZDBWNW05JiFxgqKD/9Y6VNWB+AyYfR5+Xz7n2Rl4DfEJCPJVu1qT+yzydJcgCTyt05KBij89L3G4wWCkChk6R3uk48hBJtbjnzCOnWk7z6Ikni1HgXLQf+aLV9qx9Qkg1q+O1lHbadqwZ23/b6PfYrMfSpUqvyZeTrCVooeW/q5FF3yk23S8HA4ITn32mp0kttxL/iqLmsmEaSNEWhZa+GxTTtweTTaBSOIzL/161Cin6uXpXLMDwZY6SkxShrdYJFLEt3D+gNh86/SKDg68GkoPmDaKncpMqCvNv2VAqYhKrpROpYHHARGZFlf4ClsLF93xW74k/8DJdbzuPl849q7ufoGaEoaBDLrYN1Z4d/ub6sr3+qopwAwqhxSPZ2LcIE5qYjgMX69jtIpB76xiWd8SiNW2YDVc7woE873BLVlrY12PWh0BSphrJzeZQ9d3rQieGqFUN2O9JHmDLzO6rVqrYc2stGuekqnN6JnKBSqmdbYApnIkdpNJEqSwqghZDIR6a2bTOrQAj3m00eHBba04Iv6voHyFY="
@@ -34,7 +34,7 @@ jobs:
   - stage: publish
     script: skip
     before_deploy:
-    - openssl aes-256-cbc -K $encrypted_af1cf3d6024a_key -iv $encrypted_af1cf3d6024a_iv -in travis/key.asc.enc -out travis/key.asc -d
+    - openssl aes-256-cbc -K $encrypted_4f7bbed6af32_key -iv $encrypted_4f7bbed6af32_iv -in travis/key.asc.enc -out travis/key.asc -d
     deploy:
       provider: script
       script: sbt gpgImportKey publish githubRelease
