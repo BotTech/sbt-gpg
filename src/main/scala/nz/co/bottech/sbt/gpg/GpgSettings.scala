@@ -30,6 +30,7 @@ object GpgSettings {
     gpgSubkeyLength := gpgKeyLength.value,
     gpgSubkeyType := gpgKeyType.value,
     gpgSubkeyUsage := Set(GpgKeyUsage.sign),
+    gpgTrustFile := target.value / ".gnupg" / "trust.asc",
     gpgVersion := gpgCommandAndVersion.value._2,
     publishConfiguration := (publish / publishConfiguration).value,
     publishLocalConfiguration := (publishLocal / publishLocalConfiguration).value
@@ -145,6 +146,9 @@ object GpgSettings {
         gpgParameters := trustKeyParametersTask.value,
         gpgTrustLevel := 5
       )
+    ) ++
+    inTaskRef(gpgExportTrust)(
+      Seq(gpgExportTrust := exportTrustTask.value)
     )
 
   def inTaskRef(t: Scoped)(ss: Seq[Setting[_]]): Seq[Setting[_]] = {

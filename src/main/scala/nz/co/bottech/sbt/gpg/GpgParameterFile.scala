@@ -25,7 +25,7 @@ object GpgParameterFile {
         nameLines(name) ++:
         passphrase.map(p => s"Passphrase: $p").toSeq
     }
-    val parametersFile = TemporaryFile.create(file, lines)
+    val parametersFile = IO.createTempFile(file, lines)
     log.debug(s"Parameters file written to $parametersFile.")
     parametersFile
   }

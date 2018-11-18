@@ -20,6 +20,7 @@ trait BaseGpgCommands {
   protected val EditKeyCommand = "--edit-key"
   protected val ExportKeyCommand = "--export-secret-keys"
   protected val ExportSubkeyCommand = "--export-secret-subkeys"
+  protected val ExportTrustCommand = "--export-ownertrust"
   protected val GenerateKeyCommand = "--full-generate-key"
   protected val ImportKeyCommand = "--import"
   protected val ListKeysCommand = "--list-keys"
@@ -137,6 +138,10 @@ trait BaseGpgCommands {
 
   def editKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): CommandOutput = {
     logAndExecute("Editing key", gpg, options, EditKeyCommand, parameters, log)
+  }
+
+  def exportTrust(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): CommandOutput = {
+    logAndExecute("Exporting trust", gpg, options, ExportTrustCommand, parameters, log)
   }
 
   private def logAndExecute(message: String,
