@@ -55,9 +55,9 @@ object ScriptedGpgDockerPlugin extends AutoPlugin {
   private def gpgDockerfileSetting(ubuntuTag: String, gpgPackage: String) = Def.setting {
     Dockerfile.empty
       .from(s"ubuntu:$ubuntuTag")
-      .run("apt-get", "update")
-      .run("apt-get", "install", "-y", gpgPackage)
-      .run("apt-get", "install", "-y", "vim")
+      .runShell("apt-get", "update", "&&",
+           "apt-get", "install", "-y", gpgPackage, "vim", "&&",
+           "rm", "-rf", "/var/lib/apt/lists/*")
       .add(proxyScript.value, "/usr/local/bin/proxy")
       .run("chmod", "+x", "/usr/local/bin/proxy")
   }
