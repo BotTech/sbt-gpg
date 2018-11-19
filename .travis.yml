@@ -6,7 +6,7 @@ services:
 - docker
 
 jdk:
-- openjdk11
+- oraclejdk8
 
 addons:
   apt:

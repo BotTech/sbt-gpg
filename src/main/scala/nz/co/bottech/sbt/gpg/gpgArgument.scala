@@ -58,9 +58,10 @@ final case class FileOption(option: String, delete: Boolean) extends (File => Gp
   override def apply(file: File): GpgOption = GpgOption(option, prepare(file))
 
   private def prepare(file: File): () => String = () => {
-    if (delete) {//} && file.canWrite) {
-      println(s"***** File '${file.getPath}' exists ${file.exists()} canWrite ${file.canWrite}")
-      val _ = Files.deleteIfExists(file.toPath)
+    if (delete && file.exists()) {
+      // Files.deleteIfExists throws AccessDeniedException if the file does not exist.
+      // See 9a548050a7cef741aa1bb71d918bc57cb3ec18f2 and https://travis-ci.org/BotTech/sbt-gpg/jobs/457153754
+      val _ = Files.delete(file.toPath)
     }
     file.getPath
   }
