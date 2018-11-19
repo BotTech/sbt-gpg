@@ -25,9 +25,6 @@ object GpgTasks {
 
   final val ErrorChangingPassphraseRegex = ".*error changing passphrase: (.*)".r
 
-  final val ExportResultMessage = "EXPORT_RES"
-  final val NoExportResultsMessage = "EXPORT_RES 0 0 0"
-
   // Workaround for https://github.com/sbt/sbt/issues/3110
   final val Def = sbt.Def
 
@@ -159,8 +156,7 @@ object GpgTasks {
   def exportKeyTask: Def.Initialize[Task[File]] = Def.taskDyn {
     val keyFile = prepareKeyFileTask.value
     Def.task {
-      val output = runCommandTask(GpgVersion.commands(_).exportKey).value
-      checkExportResults(output)
+      val _ = runCommandTask(GpgVersion.commands(_).exportKey).value
       keyFile
     }
   }
@@ -168,17 +164,8 @@ object GpgTasks {
   def exportSubkeyTask: Def.Initialize[Task[File]] = Def.taskDyn {
     val keyFile = prepareKeyFileTask.value
     Def.task {
-      val output = runCommandTask(GpgVersion.commands(_).exportSubkey).value
-      checkExportResults(output)
+      val _ = runCommandTask(GpgVersion.commands(_).exportSubkey).value
       keyFile
-    }
-  }
-
-  private def checkExportResults(output: CommandOutput): Unit = {
-    output.std.find(_.contains(ExportResultMessage)) match {
-      case Some(result) if result.contains(NoExportResultsMessage) => throw GpgNoExportResults("No export results.")
-      case Some(_) => ()
-      case None => throw GpgUnknownExportResults(s"Unable to find $ExportResultMessage in the output.")
     }
   }
 
@@ -342,17 +329,18 @@ object GpgTasks {
     val gpg = gpgCommand.value
     val version = gpgVersion.value
     val additionalOptions = gpgAdditionalOptions.value
+    val keyFile = gpgKeyFile.value
+    val hash = fileHash(keyFile)
     val importTask = Def.task {
       val args = gpgArguments.value
-      val keyFile = gpgKeyFile.value.getPath
       val options = args.flatMap(_.prepare()) ++ additionalOptions
-      GpgVersion.commands(version).importKey(gpg, options, Seq(keyFile), log)
+      GpgVersion.commands(version).importKey(gpg, options, Seq(keyFile.getPath), log)
     }
     val exportTask = Def.task {
       val exportArgs = exportArgumentsTask.value
       val options = exportArgs.flatMap(_.prepare()) ++ additionalOptions
       val output = exportCommand(version)(gpg, options, Seq(exportKeyFingerprintParam), log)
-      checkExportResults(output)
+      checkChangePassphraseResults(keyFile, hash)
       output
     }
     Def.sequential(importTask, changePassphrase, exportTask, deleteHomeDirTask)
@@ -360,6 +348,26 @@ object GpgTasks {
 
   private def deleteHomeDirTask: Def.Initialize[Task[Unit]] = Def.task {
     gpgHomeDir.value.foreach(IO.delete)
+  }
+
+  private def fileHash(file: File): Option[Array[Byte]] = {
+    if (file.exists()) {
+      Some(Hash(file))
+    } else {
+      None
+    }
+  }
+
+  private def checkChangePassphraseResults(file: File, hash: Option[Array[Byte]]): Unit = {
+    if (!file.exists()) {
+      throw GpgMissingKeyFile("Key file not found.")
+    }
+    hash match {
+      case Some(initialHash) => if (initialHash sameElements Hash(file)) {
+        throw GpgPassphraseNotChanged("Passphrase of key was not changed.")
+      }
+      case None => ()
+    }
   }
 
   type Command[A] = (String, Seq[String], Seq[String], Logger) => A

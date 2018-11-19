@@ -12,8 +12,8 @@ object GpgErrors {
 
   final case class GpgErrorChangingPassphrase(message: String) extends Exception(message)
 
-  final case class GpgNoExportResults(message: String) extends Exception(message)
+  final case class GpgMissingKeyFile(message: String) extends Exception(message)
 
-  final case class GpgUnknownExportResults(message: String) extends Exception(message)
+  final case class GpgPassphraseNotChanged(message: String) extends Exception(message)
 
 }
