@@ -58,7 +58,8 @@ final case class FileOption(option: String, delete: Boolean) extends (File => Gp
   override def apply(file: File): GpgOption = GpgOption(option, prepare(file))
 
   private def prepare(file: File): () => String = () => {
-    if (delete) {
+    if (delete) {//} && file.canWrite) {
+      println(s"***** File '${file.getPath}' exists ${file.exists()} canWrite ${file.canWrite}")
       val _ = Files.deleteIfExists(file.toPath)
     }
     file.getPath
