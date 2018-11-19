@@ -2,8 +2,8 @@
 *.log
 
 target
+!src/sbt-test/**/target
 project/project
-project/target
 .cache
 .classpath
 .project

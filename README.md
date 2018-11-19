@@ -34,6 +34,21 @@ The common scenario for using this plugin is:
 
 For detailed instructions see [Travis CI](#travis-ci).
 
+### Commands
+
+* [gpgGenerateKey](#generate-key) - Generates a new key pair.
+* [gpgListKeys](#list-keys) - List the existing keys.
+* [gpgAddKey](#add-key) - Adds a subkey to an existing key.
+* [gpgExportKey](#export-key) - Exports a key with the primary secret key.
+* [gpgExportSubkey](#export-subkey) - Exports a subkey without the primary secret key.
+* [gpgImportKey](#import-key) - Imports a key to the keyring.
+* [gpgChangeKeyPassphrase](#change-key-passphrase) - Changes the passphrase of a key.
+* [gpgChangeSubkeyPassphrase](#change-subkey-passphrase) - Changes the passphrase of a subkey.
+* [gpgSign](#sign-message) - Sign a message.
+* [gpgSignedArtifacts](#signed-artifacts) - Packages all artifacts for publishing, signs them, and then maps the Artifact definition to the generated file.
+
+### Setting Scopes
+
 The referenced settings from all the main tasks have been scoped to that task to make it easier to override just the
 ones that you care about without impacting other tasks. For example:
 ```sbtshell
@@ -81,7 +96,7 @@ used. Make sure to secure any credentials file appropriately.
 
 Comments are not encouraged and are therefore not provided as an option.
 
-WARNING - If you set `gpgGenerateKey / gpgSelectPassphrase` then this will end up in the generated `gpgParametersFile`.
+WARNING: If you set `gpgGenerateKey / gpgSelectPassphrase` then this will end up in the generated `gpgParametersFile`.
 You should take care to secure this file and delete it when it is no longer needed (e.g. `clean`).
 
 ### List Keys
@@ -143,7 +158,7 @@ subkeys. You can read a good introduction to this on [Debian Wiki - Subkeys].
 
 This cannot be used with a passphrase, it can only be used with Pinentry.
 
-WARNING - this will overwrite the key file with the new key with the new passphrase.
+WARNING: this will overwrite the key file with the new key with the new passphrase.
 
 ### Change Subkey Passphrase
 
@@ -156,7 +171,7 @@ WARNING - this will overwrite the key file with the new key with the new passphr
 
 This cannot be used with a passphrase, it can only be used with Pinentry.
 
-WARNING - this will overwrite the key file with the new key with the new passphrase.
+WARNING: this will overwrite the key file with the new key with the new passphrase.
 
 ### Sign Message
 
@@ -352,6 +367,8 @@ travis encrypt
 PGP_PASS=YOUR_PGP_PASSPHRASE
 ```
 
+NOTE: If on macOS you will need to press `Enter` before pressing `Ctrl+D`. The line feed character will not be included.
+
 Add the output to the `env.global` section of the `.travis.yml` file.
 
 #### Add the Signed Artifacts
@@ -373,13 +390,20 @@ And lastly add the fingerprint of the subkey:
 gpgKeyFingerprint := "8BD27F291CB15ABD0DEFA583674FFAE89237F93F!"
 ```
 
-NOTE - The fingerprint must end with a `!` in order to get GnuPG to use the subkey.
+NOTE: The fingerprint must end with a `!` in order to get GnuPG to use the subkey.
 
 Now when you run `publish` the artifacts will be published along with their signatures.
 
 ## Credits
 
 This plugin was generated from the [BotTech/sbt-autoplugin.g8][sbt-autoplugin] Giter8 template.
+
+Credit to these Open Source projects:
+* [dwijnand/sbt-dynver]
+* [marcuslonnberg/sbt-docker]
+* [ohnosequences/sbt-github-release]
+* [sbt/sbt-bintray]
+* [sbt/sbt-dirty-money]
 
 Special thanks to:
 * [Docker] for providing the containerization.
@@ -389,18 +413,23 @@ Special thanks to:
 * [Lightbend] for [Scala], [sbt] and distributing the plugin in the community sbt repository.
 * [scalacenter] for [Scala] and indexing this project in the [Scaladex].
 * [Travis CI] for running the build.
-* All the other OSS contributors who made this project possible.
+* All the other contributors who made this project possible.
 
 [Build Status]: https://travis-ci.org/BotTech/sbt-gpg.svg?branch=master
 [Debian Wiki - Subkeys]: https://wiki.debian.org/Subkeys
 [Docker]: https://www.docker.com
 [Download]: https://api.bintray.com/packages/bottech/sbt-plugins/sbt-gpg/images/download.svg
+[dwijnand/sbt-dynver]: https://github.com/dwijnand/sbt-dynver
 [Github]: https://github.com
 [GnuPG]: https://www.gnupg.org/index.html
 [GnuPG Download]: https://www.gnupg.org/download/index.html
 [JFrog]: https://jfrog.com
 [Lightbend]: https://www.lightbend.com
+[marcuslonnberg/sbt-docker]: https://github.com/marcuslonnberg/sbt-docker
+[ohnosequences/sbt-github-release]: https://github.com/ohnosequences/sbt-github-release
 [sbt]: https://www.scala-sbt.org
+[sbt/sbt-bintray]: https://github.com/sbt/sbt-bintray
+[sbt/sbt-dirty-money]: https://github.com/sbt/sbt-dirty-money
 [sbt - Credentials]: https://www.scala-sbt.org/1.x/docs/Publishing.html#Credentials
 [sbt - Inspecting the Build]: https://www.scala-sbt.org/1.x/docs/Howto-Inspect-the-Build.html
 [sbt-autoplugin]: https://github.com/BotTech/sbt-autoplugin.g8

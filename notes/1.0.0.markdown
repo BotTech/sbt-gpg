@@ -1,1 +1,15 @@
-TODO
+v1.0.0
+
+
+### Commands
+
+* [gpgGenerateKey](#generate-key) - Generates a new key pair.
+* [gpgListKeys](#list-keys) - List the existing keys.
+* [gpgAddKey](#add-key) - Adds a subkey to an existing key.
+* [gpgExportKey](#export-key) - Exports a key with the primary secret key.
+* [gpgExportSubkey](#export-subkey) - Exports a subkey without the primary secret key.
+* [gpgImportKey](#import-key) - Imports a key to the keyring.
+* [gpgChangeKeyPassphrase](#change-key-passphrase) - Changes the passphrase of a key.
+* [gpgChangeSubkeyPassphrase](#change-subkey-passphrase) - Changes the passphrase of a subkey.
+* [gpgSign](#sign-message) - Sign a message.
+* [gpgSignedArtifacts](#signed-artifacts) - Packages all artifacts for publishing, signs them, and then maps the Artifact definition to the generated file.

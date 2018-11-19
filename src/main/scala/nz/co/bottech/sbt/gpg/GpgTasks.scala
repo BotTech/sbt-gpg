@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.attribute.{PosixFilePermission, PosixFilePermissions}
 
 import nz.co.bottech.sbt.gpg.BaseGpgCommands.CommandOutput
-import nz.co.bottech.sbt.gpg.GpgErrors.{GpgErrorChangingPassphrase, GpgMissingSecretKey, GpgUnknownVersionException}
+import nz.co.bottech.sbt.gpg.GpgErrors._
 import nz.co.bottech.sbt.gpg.GpgKeys._
 import sbt.Keys._
 import sbt._
@@ -24,6 +24,9 @@ object GpgTasks {
   }
 
   final val ErrorChangingPassphraseRegex = ".*error changing passphrase: (.*)".r
+
+  final val ExportResultMessage = "EXPORT_RES"
+  final val NoExportResultsMessage = "EXPORT_RES 0 0 0"
 
   // Workaround for https://github.com/sbt/sbt/issues/3110
   final val Def = sbt.Def
@@ -97,6 +100,14 @@ object GpgTasks {
     GpgParameterFile.create(parameters, file, log)
   }
 
+  def formatSubkeyFingerprint(fingerprint: String): String = {
+    if (fingerprint.endsWith("!")) {
+      fingerprint
+    } else {
+      fingerprint + "!"
+    }
+  }
+
   def gpgPassphraseFileTask = Def.task {
     val log = state.value.log
     val maybePassphrase = gpgSelectPassphrase.value
@@ -148,7 +159,8 @@ object GpgTasks {
   def exportKeyTask: Def.Initialize[Task[File]] = Def.taskDyn {
     val keyFile = prepareKeyFileTask.value
     Def.task {
-      runCommandTask(GpgVersion.commands(_).exportKey).value
+      val output = runCommandTask(GpgVersion.commands(_).exportKey).value
+      checkExportResults(output)
       keyFile
     }
   }
@@ -156,8 +168,17 @@ object GpgTasks {
   def exportSubkeyTask: Def.Initialize[Task[File]] = Def.taskDyn {
     val keyFile = prepareKeyFileTask.value
     Def.task {
-      runCommandTask(GpgVersion.commands(_).exportSubkey).value
+      val output = runCommandTask(GpgVersion.commands(_).exportSubkey).value
+      checkExportResults(output)
       keyFile
+    }
+  }
+
+  private def checkExportResults(output: CommandOutput): Unit = {
+    output.std.find(_.contains(ExportResultMessage)) match {
+      case Some(result) if result.contains(NoExportResultsMessage) => throw GpgNoExportResults("No export results.")
+      case Some(_) => ()
+      case None => throw GpgUnknownExportResults(s"Unable to find $ExportResultMessage in the output.")
     }
   }
 
@@ -287,7 +308,7 @@ object GpgTasks {
   }
 
   def changeSubkeyPassphraseTask: Def.Initialize[Task[Unit]] = Def.taskDyn {
-    val keyFingerprint = s"${GpgSettings.mandatoryTask(gpgKeyFingerprint).value}!"
+    val keyFingerprint = formatSubkeyFingerprint(GpgSettings.mandatoryTask(gpgKeyFingerprint).value)
     changePassphraseTask(editSubkeyPassphraseTask, GpgVersion.commands(_).exportSubkey, keyFingerprint)
   }
 
@@ -315,7 +336,7 @@ object GpgTasks {
   }
 
   private def changePassphraseTask(changePassphrase: Def.Initialize[Task[Unit]],
-                                   exportCommand: GpgVersion => Command[Unit],
+                                   exportCommand: GpgVersion => Command[CommandOutput],
                                    exportKeyFingerprintParam: String) = Def.taskDyn {
     val log = state.value.log
     val gpg = gpgCommand.value
@@ -330,7 +351,9 @@ object GpgTasks {
     val exportTask = Def.task {
       val exportArgs = exportArgumentsTask.value
       val options = exportArgs.flatMap(_.prepare()) ++ additionalOptions
-      exportCommand(version)(gpg, options, Seq(exportKeyFingerprintParam), log)
+      val output = exportCommand(version)(gpg, options, Seq(exportKeyFingerprintParam), log)
+      checkExportResults(output)
+      output
     }
     Def.sequential(importTask, changePassphrase, exportTask, deleteHomeDirTask)
   }

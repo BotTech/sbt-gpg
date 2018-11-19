@@ -112,19 +112,19 @@ trait BaseGpgCommands {
     keyFingerprint
   }
 
-  def exportKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+  def exportKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): CommandOutput = {
     logAndExecute("Exporting key", gpg, options, ExportKeyCommand, parameters, log)
   }
 
-  def exportSubkey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+  def exportSubkey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): CommandOutput = {
     logAndExecute("Exporting subkey", gpg, options, ExportSubkeyCommand, parameters, log)
   }
 
-  def importKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+  def importKey(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): CommandOutput = {
     logAndExecute("Importing key", gpg, options, ImportKeyCommand, parameters, log)
   }
 
-  def sign(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): Unit = {
+  def sign(gpg: String, options: Seq[String], parameters: Seq[String], log: Logger): CommandOutput = {
     logAndExecute("Signing message", gpg, options, SignCommand, parameters, log)
   }
 

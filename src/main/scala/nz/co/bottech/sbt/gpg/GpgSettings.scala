@@ -71,7 +71,7 @@ object GpgSettings {
     inTask(gpgExportSubkey)(
       Seq(
         gpgArguments := exportArgumentsTask.value,
-        gpgParameters := Seq(mandatoryTask(gpgKeyFingerprint).value + "!")
+        gpgParameters := Seq(formatSubkeyFingerprint(mandatoryTask(gpgKeyFingerprint).value))
       )
     ) ++
     inTaskRef(gpgImportKey)(

@@ -16,20 +16,18 @@ addons:
 env:
   global:
   # PGP Passphrase
-#  - secure: "PX23NLgtWFlpQj1hRx4pZi2iByORXCC/v6Je/2Gx+TsDH3VO3km6axFi0Ts844Pss0qKambhL151hHB7jLlYBWwLGxEhepzmL7idTbQ21/cdUJXSHnudQp/LqbgquZ8RrxHmBeVDGaecXhFzUCBMyp5isyydCiugyHt9OnNon7c91sxTWTom04sQk3kMky3KArfP7x7lVejOy9c6VOJrC63DV9LrYhF3IQLbTWGBrHLdr/GtPjxD3TA9RLPH4psUqEkEgL/yJhBq/vm23rcURsNQPvU0CcmPDHNxHWy5YsnXOBQuxwmbw9RstB1d22Mu08d4oO96JoNcRBnhuzlvByWJ1I/0XJz0HITRoVgCQyOXfdWJfHC5Sd1BdLtJ9SE++6aZoXUfVhk6zIIs2nQDvU42Ur1OzbG1mHPZ6rdlswx6G6HxCU5HWG+hXHvOF/RmH44coYPpPnVtUSlq9ncxAIbBIbHobHoZyNKXikHTxLzDvSuyV82ST5sE9xrA9nB8JXprARxeOiCld+UaCGwaAmuOkIQKnMz4UOHKSZE6ZwVesYImpOwM6w4VBzx26QfgrX23RkYO/dn5SeFgVCgoBpuWzBbG1uEBItduoftIrLuBSHPcAEiKynB8ovZG9JXBeYMd5v/Sq+BCp/+z7LVDVja/zv2EwL8XvcajytpnZOU="
-  - secure: "a8JGLjYOQliBT8aqmRQUxQHt3kU3cJLu5v5aiD+zXC/erFmXwLKlQlxpQfyiLpfwtJExThdPY+N2XbIReWVtBzw5vtZt2eMXUftGpHHCIJBTIRkjQnANOdOZv8JY4e9sOF/9caDVheORQnRuKXZSjY5GQXufGp5xGN2sXCaCZ12yaKt+c6LhIAZf9zDR7Pe9wHpIMjMaPqv+uX2WoZ21CamP9VwWcsniqCSAdNVyYnUxavsMvUe3vxkAVBQsr4hxWjC4V6K///Ix1/jKjGeIkQv1XyPDYXRdU0mraQkZ6GRId5h3GaMz7XWZOHl/3t3Z4sqoMJz3Aes/ovVPXNpnP8eykCiiZvMqk95GRIJqjSxZk2XVYssXyQHHYQPnS7yueyxcGUzwc7hkCY8SifIM2JipAhrU8ieuVo4J0GLDoM/tp2JILcFvnZHXIbBT93sHZNMRcDwEZaUj8pAkHFMbcfF0F8rQdQwaFiMW3nTAn0iDQgaRtvZQXcswi3u15Ko4CglW1Sl8XgLgviIZ9a6Lq5CuTMPCA0JBJAWCQrOGn8q5ZJ0vceuzYF7HLxXPbbqqGgV81L8DhnWXPy9X6n+d/4sj/hkChYjmt3b/OylspQTd/Y5KdmaCg5XahRIyFyqLepl6Jf92CbemP0L3YYXaEVoZy9cDCiJykFFGuEWt61o="
+  - secure: "hOdqSXdBzWNkarPI2YQcQEMY9njJDtKB0n1vE92mydCbkdF/7OxRgwr1x/8NYgYzeDrJ0CVdgj7LZXSbihrt4FsZ5RQ1oQmNFh5iLKttg7BfCnBYF4WKmxXhJSWS3wWZooDQjdbuffJxrUW10YcPjP6DlxOQhZzNzkTezJawgQCN3gYAcVorpMLMIiOM84voE/u+8nrEl7eD6sG/T/XvWDGvBDe4Ur6EZ1JxBNKIZcAnSOVQkMrRwPG6kwXtXsOZr+nonBUviywaMhaT5TlS33MIrNen1US7xOVSh84TFIn9xATE5rRcYV5PFQm+n4z8y79h6MtAYZZHtYAj6ba1ophVtIqAd8GOetfeFh8S1oZh/n3ulIoJKcnxMj5qWvjyMCodVGZCzwVnlBQ3OF7GiEHY98P6BTtR5vnWGu4FtKq0d64xO8xikaVxBirNvfa3wAKqBjm3GXjmV1REKx7eOV0yzK+GJslWNGA8Jq46bcw+2sjwUojre+t0BbS6SvIfB+l/9UnnL+IKxNqs3PpjDrO4bYB0LEbViOlRjB5RleMjsgRV/k0RAHAozjqLX+Ty9crpq0UBKduP3mezLmZ0BewDxA23hSGYUuKE3tQT+4CI5+ruWdZ8ibjJZfh7bRqIqudeeixDiwtjO5c+VLDVmc8M0BjawUo0wnsaKYTBkkQ="
   # Bintray Username and API Key
   - BINTRAY_USER=steinybot
   - secure: "HNUDoIgswSokVJBPfRVdoFGTENelBh3lkHsJYLbzUobQhRIV60zlygY/2US4+W9t6GzyqzIb0XCpp53ksGIC3F6pblhPG5tB04DQG30gHGw7RNJHnLJA8pu8H1lg1jagQ2A1BSmwa7ZDBWNW05JiFxgqKD/9Y6VNWB+AyYfR5+Xz7n2Rl4DfEJCPJVu1qT+yzydJcgCTyt05KBij89L3G4wWCkChk6R3uk48hBJtbjnzCOnWk7z6Ikni1HgXLQf+aLV9qx9Qkg1q+O1lHbadqwZ23/b6PfYrMfSpUqvyZeTrCVooeW/q5FF3yk23S8HA4ITn32mp0kttxL/iqLmsmEaSNEWhZa+GxTTtweTTaBSOIzL/161Cin6uXpXLMDwZY6SkxShrdYJFLEt3D+gNh86/SKDg68GkoPmDaKncpMqCvNv2VAqYhKrpROpYHHARGZFlf4ClsLF93xW74k/8DJdbzuPl849q7ufoGaEoaBDLrYN1Z4d/ub6sr3+qopwAwqhxSPZ2LcIE5qYjgMX69jtIpB76xiWd8SiNW2YDVc7woE873BLVlrY12PWh0BSphrJzeZQ9d3rQieGqFUN2O9JHmDLzO6rVqrYc2stGuekqnN6JnKBSqmdbYApnIkdpNJEqSwqghZDIR6a2bTOrQAj3m00eHBba04Iv6voHyFY="
   # Github Token
   - secure: "jPWZjfhoErQaOMmIher8LC3Dwv/2s9+VfJmg1DtCvESwUH7tJYdb65wvKUhU/FP9V1L6eiDiPlggR0x0FMy2E2TXPURBn4VrgrQt+Tm4ZrFMtgWZB7sOYzOnaqiViCZJvi60UigY81Cvj+QHi13PfbdKpBLFoKkEj1JA+/iezRszCkrrI5rvlZlnCw9QvZgF73I24D0gWuMFyPfD2dn8o/i25DQ6woI9yLQ0b+a3KeDEA2u6S6cUn/yM6jaauT9cnQgTG8ioViNoqIZ77IJzEGYOJ/0bP2a2qu+vEb9d4effcUu3Tc7fmtt8CdKTcmMeYL33MczOM0d7L3ila9sV5VxyTQSysXg+gAXIOyHs/GC9eS9xMxkfogPcajRo2TeAPMfo8TovUdCmVfJqcNyBZijy4Eu9kkMLlJWyMixKOiNAT0aOxgnM17bt/w9UtT3lrfLL73vD1UB43t+ICX1O/3d/I7G9sezcygOkuEnGxr0U94J6BOZ0vZV7mCOPFYpHDjfM75IFrjJv6U1BHHmEl8wgtbim3Hgx5d4GGFpqPMs7ndQ4pkSzQFsgQa6vAcZjo6E2CCMg+pzwwTif3B5bJplLz3fZjD+0aLfU1N79sYPSNHfgdQhwWfquUtipOXyibZm+R+cYYyy2EsYKxVgaID8v79dWZZs3KT9+lIoCUAs="
-#  matrix:
-#  - PGP_VERSION=V2_0
-#  - PGP_VERSION=V2_1
-#  - PGP_VERSION=V2_2
+  matrix:
+  - PGP_VERSION=V2_0
+  - PGP_VERSION=V2_1
+  - PGP_VERSION=V2_2
 
-#script: sbt "$PGP_VERSION/scripted *"
-script: echo hello
+script: sbt "$PGP_VERSION/scripted *"
 
 jobs:
   include:
@@ -39,8 +37,7 @@ jobs:
     - openssl aes-256-cbc -K $encrypted_4f7bbed6af32_key -iv $encrypted_4f7bbed6af32_iv -in travis/key.asc.enc -out travis/key.asc -d
     deploy:
       provider: script
-#      script: sbt gpgImportKey publish githubRelease
-      script: sbt gpgImportKey gpgListKeys gpgSignedArtifacts
+      script: sbt gpgImportKey publish githubRelease
       skip_cleanup: true
       on:
         tags: true
