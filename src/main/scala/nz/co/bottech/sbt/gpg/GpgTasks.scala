@@ -241,12 +241,10 @@ object GpgTasks {
         GpgSigner.sig _
       }
       artifacts.flatMap {
-        case (art, file) =>
-          val signature = signer(file)
-          Seq(
-            art -> file,
-            signatureArtifact(signature.getName, art) -> signature
-          )
+        case (art, file) => Seq(
+          art -> file,
+          signatureArtifact(art) -> signer(file)
+        )
       }
     } else {
       artifacts

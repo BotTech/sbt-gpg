@@ -6,14 +6,14 @@ import sbt._
 
 object GpgSigner {
 
-  final val AscType = "asc"
-  final val SigType = "asc"
+  final val ArmoredSignatureExtension = "asc"
+  final val SignatureExtension = "sig"
 
   def messageSignatureFile(message: File, armor: Boolean): sbt.File = {
     if (armor) {
-      file(s"${message.getPath}.asc")
+      file(s"${message.getPath}.$ArmoredSignatureExtension")
     } else {
-      file(s"${message.getPath}.sig")
+      file(s"${message.getPath}.$SignatureExtension")
     }
   }
 
@@ -62,11 +62,13 @@ object GpgSigner {
     signature
   }
 
-  def asc(name: String, artifact: Artifact): Artifact = signature(name, artifact, AscType)
+  def asc(artifact: Artifact): Artifact = signature(artifact, ArmoredSignatureExtension)
 
-  def sig(name: String, artifact: Artifact): Artifact = signature(name, artifact, SigType)
+  def sig(artifact: Artifact): Artifact = signature(artifact, SignatureExtension)
 
-  private def signature(name: String, artifact: Artifact, typ: String) = {
-    Artifact(name, typ, typ, artifact.classifier, artifact.configurations, None)
+  private def signature(artifact: Artifact, extension: String) = {
+    artifact.withExtension(extension)
+      .withChecksum(None)
+      .withUrl(None)
   }
 }
