@@ -396,7 +396,7 @@ Now when you run `publish` the artifacts will be published along with their sign
 
 ## Credits
 
-This plugin was generated from the [BotTech/sbt-autoplugin.g8][sbt-autoplugin] Giter8 template.
+This plugin was generated from the [BotTech/sbt-autoplugin.g8] Giter8 template.
 
 Credit to these Open Source projects:
 * [dwijnand/sbt-dynver]
@@ -415,6 +415,7 @@ Special thanks to:
 * [Travis CI] for running the build.
 * All the other contributors who made this project possible.
 
+[BotTech/sbt-autoplugin]: https://github.com/BotTech/sbt-autoplugin.g8
 [Build Status]: https://travis-ci.org/BotTech/sbt-gpg.svg?branch=master
 [Debian Wiki - Subkeys]: https://wiki.debian.org/Subkeys
 [Docker]: https://www.docker.com
@@ -428,11 +429,10 @@ Special thanks to:
 [marcuslonnberg/sbt-docker]: https://github.com/marcuslonnberg/sbt-docker
 [ohnosequences/sbt-github-release]: https://github.com/ohnosequences/sbt-github-release
 [sbt]: https://www.scala-sbt.org
-[sbt/sbt-bintray]: https://github.com/sbt/sbt-bintray
-[sbt/sbt-dirty-money]: https://github.com/sbt/sbt-dirty-money
 [sbt - Credentials]: https://www.scala-sbt.org/1.x/docs/Publishing.html#Credentials
 [sbt - Inspecting the Build]: https://www.scala-sbt.org/1.x/docs/Howto-Inspect-the-Build.html
-[sbt-autoplugin]: https://github.com/BotTech/sbt-autoplugin.g8
+[sbt/sbt-bintray]: https://github.com/sbt/sbt-bintray
+[sbt/sbt-dirty-money]: https://github.com/sbt/sbt-dirty-money
 [Scala]: https://www.scala-lang.org
 [scalacenter]: https://scala.epfl.ch
 [Scaladex]: https://index.scala-lang.org

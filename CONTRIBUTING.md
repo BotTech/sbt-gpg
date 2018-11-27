@@ -114,4 +114,3 @@ This uses [sbt/sbt-bintray] to publish artifacts to Bintray and [ohnosequences/s
 [sbt/sbt-bintray]: https://github.com/sbt/sbt-bintray
 [Testing sbt Plugins]: http://www.scala-sbt.org/1.x/docs/Testing-sbt-plugins.html
 [Travis CI]: https://travis-ci.org
-[https://github.com/BotTech/sbt-gpg/projects]
