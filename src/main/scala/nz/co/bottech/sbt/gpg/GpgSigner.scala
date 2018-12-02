@@ -67,7 +67,7 @@ object GpgSigner {
   def sig(artifact: Artifact): Artifact = signature(artifact, SignatureExtension)
 
   private def signature(artifact: Artifact, extension: String) = {
-    artifact.withExtension(extension)
+    artifact.withExtension(s"${artifact.extension}.$extension")
       .withChecksum(None)
       .withUrl(None)
   }
