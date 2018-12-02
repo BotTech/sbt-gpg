@@ -26,7 +26,7 @@ TaskKey[Unit]("check") := {
   val artifacts = packagedArtifacts.value
   val signedArtifacts = gpgSignedArtifacts.value
   val signatures = artifacts.map {
-    case (a, f) => a.withExtension("asc") -> file(s"${f.getPath}.asc")
+    case (a, f) => a.withExtension(s"${a.extension}.asc") -> file(s"${f.getPath}.asc")
   }
   require((artifacts ++ signatures).toSet === signedArtifacts.toSet)
 }
