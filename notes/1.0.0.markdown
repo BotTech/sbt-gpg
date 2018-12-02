@@ -1,5 +1,6 @@
 v1.0.0
 
+This is the first release and it enables the managing of keys and signing of artifacts.
 
 ### Commands
 
