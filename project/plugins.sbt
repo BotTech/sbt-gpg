@@ -8,4 +8,4 @@ addSbtPlugin("se.marcuslonnberg" % "sbt-docker" % "1.5.0")
 
 addSbtPlugin("com.eed3si9n" % "sbt-dirty-money" % "0.2.0")
 
-addSbtPlugin("nz.co.bottech" % "sbt-gpg" % "1.0.0-RC7")
+addSbtPlugin("nz.co.bottech" % "sbt-gpg" % "1.0.0")
