@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-labels: 
+labels: bug
 
 ---
 
@@ -28,7 +28,10 @@ gpgPassphrase := Some("password123")
 gpgKeyFile := file("travis") / "key.asc"
 gpgKeyFingerprint := "8BD27F291CB15ABD0DEFA583674FFAE89237F93F!"
 ```
-2. Run `sbt gpgListKeys`
+2. Run:
+```sbtshell
+sbt gpgListKeys
+```
 
 **Expected Behaviour**
 A clear and concise description of what you expected to happen.
